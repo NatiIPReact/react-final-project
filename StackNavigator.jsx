@@ -12,6 +12,9 @@ import Playlist from "./screens/Playlist";
 import Artist from "./screens/Artist";
 import Search from "./screens/Search";
 import Signup from "./screens/Signup";
+import Quizzes from "./screens/Quizzes";
+import HistoricQuiz from "./screens/HistoricQuiz";
+import PlayQuiz from "./screens/PlayQuiz";
 
 const Tab = createBottomTabNavigator();
 
@@ -65,6 +68,9 @@ function Navigation() {
                 <Stack.Screen name="Liked" component={LikedSongsScreen} options={{headerShown:false}}/>
                 <Stack.Screen name="Playlist" component={Playlist} options={{headerShown:false}}/>
                 <Stack.Screen name="Artist" component={Artist} options={{headerShown:false}}/>
+                <Stack.Screen name="Quiz" component={Quizzes} options={{headerShown:false}}/>
+                <Stack.Screen name="SpecificQuizHistory" component={HistoricQuiz} options={{headerShown:false}}/>
+                <Stack.Screen name="PlayQuiz" component={PlayQuiz} options={{headerShown:false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

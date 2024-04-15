@@ -95,9 +95,9 @@ const HomeScreen = () => {
                         </LinearGradient>
                         <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 13 }}>Liked Songs</Text>
                     </Pressable>
-                    <Pressable style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
+                    <Pressable onPress={()=>navigation.navigate('Quiz')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
                         <LinearGradient colors={['#00568f', '#FFFFFF']}>
-                            <Pressable style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
+                            <Pressable onPress={()=>navigation.navigate('Quiz')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
                                 <MaterialIcons name='quiz' size={24} color='white' />
                             </Pressable>
                         </LinearGradient>

@@ -15,16 +15,33 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.natidev123.reactfinalproject",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.578240915619-2sph5cos2p09g63e252818q52c23e2ev"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.natidev123.reactfinalproject"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "scheme": "Ruppinfy",
+    "extra": {
+      "eas": {
+        "projectId": "8228ed38-4437-48e5-9f45-272ed7d86f87"
+      }
     }
   }
 }
