@@ -14,8 +14,17 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.578240915619-2sph5cos2p09g63e252818q52c23e2ev"
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true,
+      "scheme": "Ruppinfy",
       "bundleIdentifier": "com.natidev123.reactfinalproject",
       "infoPlist": {
         "CFBundleURLTypes": [

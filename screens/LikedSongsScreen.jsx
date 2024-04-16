@@ -13,7 +13,7 @@ import { debounce } from 'lodash';
 import SongModal from '../SongModal';
 
 const LikedSongsScreen = () => {
-    const { audioPlayer, setAudioPlayer, updateQueueAndPlay, shuffleQueue } = useContext(AudioPlayer);
+    const { audioPlayer, setAudioPlayer, updateQueueAndPlay, shuffleQueue, updateTrackIsInFav } = useContext(AudioPlayer);
     const [searchedTracks, setSearchedTracks] = useState([]);
     const navigation = useNavigation();
     const [input, setInput] = useState('');
@@ -44,6 +44,24 @@ const LikedSongsScreen = () => {
             getLikedSongs();
         }
     }, [user]);
+    const deleteFromFavorites = (songID) => {
+        const api = `${apiStart}/Users/DeleteUserFavorite/UserID/${user?.id}/SongID/${songID}`;
+        fetch(api, { method: "DELETE", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then((res) => res.json())
+            .then((res) => {
+                if (songID === audioPlayer?.currentTrack?.songID)
+                    updateTrackIsInFav()
+                let tmp = [...likedSongs];
+                for (i in tmp) {
+                    if (tmp[i]?.songID === songID) {
+                        tmp.splice(i, 1);
+                        break;
+                    }
+                }
+                setLikedSongs(tmp);
+            })
+            .catch(e => console.log(e))
+    };
     const debouncedSearch = debounce(handleSearch, 800);
     function handleSearch(text) {
         const filteredTracks = likedSongs.filter((item) => item.songName.toLowerCase().includes(text.toLowerCase()))
@@ -112,7 +130,7 @@ const LikedSongsScreen = () => {
                         </View>
                     </Pressable>
                     <FlatList showsVerticalScrollIndicator={false} data={searchedTracks} renderItem={({ item, index }) => (
-                        <SongItem item={item} onPress={playSong} ind={index} isPlaying={item?.songID === audioPlayer?.currentTrack?.songID} />
+                        <SongItem deleteFromFavorites={deleteFromFavorites} item={item} onPress={playSong} ind={index} isPlaying={item?.songID === audioPlayer?.currentTrack?.songID} />
                     )} />
                 </View>
             </LinearGradient>

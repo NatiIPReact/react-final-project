@@ -15,6 +15,9 @@ const LoginScreen = () => {
         iosClientId: '578240915619-2sph5cos2p09g63e252818q52c23e2ev.apps.googleusercontent.com',
         webClientId: '578240915619-306oldrb57q89cd6cj8g1ia7mnt8nbgo.apps.googleusercontent.com'
     });
+    useEffect(() => {
+        console.log(response)
+      }, [response]);
     useEffect(() => {handleGoogleSignin()},[response])
     async function handleGoogleSignin () {
         const user = await AsyncStorage.getItem('@user');
@@ -24,7 +27,6 @@ const LoginScreen = () => {
             }
         } else {
             setUserInfo(JSON.parse(user));
-            console.log(JSON.parse(user));
         }
     }
     const getUserInfo = async (token) => {
@@ -45,12 +47,18 @@ const LoginScreen = () => {
         navigation.navigate("EmailLogin")
     };
     useEffect(() => {
-        let res = WebBrowser.maybeCompleteAuthSession();
-        console.log(res);
-        if (res?.type === "failed") {
-            setGoogleAvailble(false);
-        }
+        tryLogin();
     }, []);
+    const tryLogin = async () => {
+        try {
+            const userAsJSON = await AsyncStorage.getItem('@user');
+            if (userAsJSON != null) {
+                navigation.navigate("Main")
+            }
+        } catch (e) {
+            navigation.navigate("Login");
+        }
+    }
     return (
         <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
             <SafeAreaView>
@@ -90,7 +98,7 @@ const LoginScreen = () => {
                     <Entypo name="facebook" size={24} color="#316FF6" />
                     <Text style={{ fontWeight: "500", color: "white", textAlign: "center", flex: 1 }}>Sign In with Facebook</Text>
                 </Pressable>
-                <Pressable onPress={promptAsync}
+                <Pressable onPress={()=>promptAsync()}
                     style={{
                         backgroundColor: "#131624",
                         padding: 10,

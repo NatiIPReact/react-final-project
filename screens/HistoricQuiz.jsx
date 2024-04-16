@@ -56,9 +56,9 @@ const HistoricQuiz = () => {
                     <View key={index + 1} style={{textAlign:'center',margin:5}}>
                         <Text style={{color:'white',textAlign:'center',fontWeight:'bold',fontSize:18}}>Question {index + 1}</Text>
                         <Text style={{color:'wheat',textAlign:'center',fontSize:15,fontWeight:'400'}}>{question?.content}</Text>
-                        {question?.answers?.map((answer,index) => {
+                        {question?.answers?.map((answer,ind) => {
                             return (
-                                <Text style={{color:'white',textAlign:'center',fontSize:16,margin:2,backgroundColor:calculateColor(question.userAnswer,index,question.correctAnswer)}}>{String.fromCharCode(index + 97)}) {answer}{calculateEmoji(question.userAnswer,index,question.correctAnswer)}</Text>
+                                <Text key={ind} style={{color:'white',textAlign:'center',fontSize:16,margin:2,backgroundColor:calculateColor(question.userAnswer,ind,question.correctAnswer)}}>{String.fromCharCode(index + 97)}) {answer}{calculateEmoji(question.userAnswer,ind,question.correctAnswer)}</Text>
                             )
                         })}
                     </View>

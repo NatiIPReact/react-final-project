@@ -5,13 +5,13 @@ import { useNavigation } from '@react-navigation/native'
 import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import { useGlobalState } from '../components/user';
 import { apiStart } from '../api';
-import { ScrollView } from 'react-native-web';
+import { ScrollView } from 'react-native';
 import SongModal from '../SongModal';
 
 const PlayQuiz = () => {
     const navigation = useNavigation();
     const { user, setUser } = useGlobalState();
-    const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [answersData, setAnswersData] = useState({ currentQuestion: 0, userAnswers: [] });
     const [timeLeft, setTimeLeft] = useState(180);
     const [quiz, setQuiz] = useState(null);
     const [timerInterval, setTimerInterval] = useState(null);
@@ -34,10 +34,17 @@ const PlayQuiz = () => {
         }
     }, []);
     useEffect(() => {
-        if (timeLeft <= 0) {
-            for (let i = currentQuestion; i < 5; i++) {
-                quiz.questions[i].userAnswer = -1;
+        if (timeLeft <= -1) {
+            clearInterval(timerInterval);
+            setTimerInterval(null);
+            let answers = [...answersData.userAnswers];
+            for (let i  = answers.length; i < quiz?.questions?.length; i++) {
+                answers.push(-1);
             }
+            setAnswersData({
+                    currentQuestion: quiz?.questions?.length,
+                    userAnswers: answers
+        })
         }
     }, [timeLeft])
     const formatTime = (time) => {
@@ -45,19 +52,39 @@ const PlayQuiz = () => {
         const remainingSeconds = time % 60;
         return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     };
+    const calculateGrade = () => {
+        let count = 0;
+        for (i in quiz.questions) {
+            if (i < answersData.userAnswers.length && quiz.questions[i].correctAnswer === answersData.userAnswers[i])
+                count++;
+        }
+        return Math.floor(count / quiz.questions.length * 100);
+    };
     const answeredQuestion = (answer) => {
-        const api = `${apiStart}/Questions/UpdateUserAnswer/QuestionID/${quiz.questions[currentQuestion].id}/Answer/${answer}`;
+        const api = `${apiStart}/Questions/UpdateUserAnswer/QuestionID/${quiz.questions[answersData.currentQuestion].id}/Answer/${answer}`;
         fetch(api, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
-        .then(res => res.json())
-        .then(res => {
-            quiz?.questions[currentQuestion]?.userAnswer = answer;
-            setCurrentQuestion(prevState => prevState + 1)
-        })
-        .catch(e => {
-            quiz.questions[currentQuestion].userAnswer = -1;
-            console.log(e);
-            setCurrentQuestion(prevState => prevState + 1)
-        })
+            .then(res => res.json())
+            .then(res => {
+                if (answersData.currentQuestion === 4) {
+                    clearInterval(timerInterval);
+                    setTimerInterval(null);
+                }
+                setAnswersData(prevState => {
+                    return {
+                        currentQuestion: prevState.currentQuestion + 1,
+                        userAnswers: [...prevState.userAnswers, answer]
+                    }
+                })
+            })
+            .catch(e => {
+                console.log(e);
+                setAnswersData(prevState => {
+                    return {
+                        currentQuestion: prevState.currentQuestion + 1,
+                        userAnswers: [...prevState.userAnswers, -1]
+                    }
+                })
+            })
     };
     const calculateColor = (userAnswer, answer, correctAnswer) => {
         if (userAnswer !== correctAnswer && answer === correctAnswer) {
@@ -74,49 +101,45 @@ const PlayQuiz = () => {
     return (
         <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="chevron-back" size={24} color="white" />
-                </TouchableOpacity>
+                </Pressable>
                 <Text style={styles.quizText}>Quiz Results</Text>
             </View>
-            {quiz && currentQuestion < quiz?.questions?.length &&
+            {quiz && answersData.currentQuestion < quiz?.questions?.length &&
                 <View style={{ marginTop: 30 }}>
-                    <Text style={{ color: 'white', fontSize: 23, textAlign: 'center', margin: 10, fontWeight: 'bold' }}>Question {currentQuestion + 1}</Text>
+                    <Text style={{ color: 'white', fontSize: 23, textAlign: 'center', margin: 10, fontWeight: 'bold' }}>Question {answersData.currentQuestion + 1}</Text>
                     <Text style={{ color: 'white', fontSize: 23, textAlign: 'center', margin: 7 }}>{formatTime(timeLeft)}</Text>
-                    <Text style={{ color: 'white', fontSize: 18, textAlign: 'center', marginTop: 35, fontWeight: '500' }}>{quiz?.questions[currentQuestion]?.content}</Text>
+                    <Text style={{ color: 'white', fontSize: 18, textAlign: 'center', marginTop: 35, fontWeight: '500' }}>{quiz?.questions[answersData.currentQuestion]?.content}</Text>
                     <View>
-                        <Pressable style={[styles.optionButton, {marginTop:50}]} onPress={() => answeredQuestion(0)}>
-                            <Text style={styles.optionText}>{quiz.questions[currentQuestion].answers[0]}</Text>
+                        <Pressable style={[styles.optionButton, { marginTop: 50 }]} onPress={() => answeredQuestion(0)}>
+                            <Text style={styles.optionText}>{quiz.questions[answersData.currentQuestion].answers[0]}</Text>
                         </Pressable>
                         <Pressable style={styles.optionButton} onPress={() => answeredQuestion(1)}>
-                            <Text style={styles.optionText}>{quiz.questions[currentQuestion].answers[1]}</Text>
+                            <Text style={styles.optionText}>{quiz.questions[answersData.currentQuestion].answers[1]}</Text>
                         </Pressable>
                         <Pressable style={styles.optionButton} onPress={() => answeredQuestion(2)}>
-                            <Text style={styles.optionText}>{quiz.questions[currentQuestion].answers[2]}</Text>
+                            <Text style={styles.optionText}>{quiz.questions[answersData.currentQuestion].answers[2]}</Text>
                         </Pressable>
                         <Pressable style={styles.optionButton} onPress={() => answeredQuestion(3)}>
-                            <Text style={styles.optionText}>{quiz.questions[currentQuestion].answers[3]}</Text>
+                            <Text style={styles.optionText}>{quiz.questions[answersData.currentQuestion].answers[3]}</Text>
                         </Pressable>
                     </View>
                 </View>
             }
-            {quiz && currentQuestion >= quiz?.questions?.length &&
-            <View style={{ marginTop: 30 }}>
-            <Text style={{ color: 'white', fontSize: 23, textAlign: 'center', margin: 10, fontWeight: 'bold' }}>{timeLeft <= 0 ? `Time's up!` : 'Quiz Results'}</Text>
-            <ScrollView style={{textAlign:'center'}}>
-                {quiz != null && quiz?.questions?.map((question,index) => {return (
-                    <View key={index + 1} style={{textAlign:'center',margin:5}}>
-                        <Text style={{color:'white',textAlign:'center',fontWeight:'bold',fontSize:18}}>Question {index + 1}</Text>
-                        <Text style={{color:'wheat',textAlign:'center',fontSize:15,fontWeight:'400'}}>{question?.content}</Text>
-                        {question?.answers?.map((answer,index) => {
-                            return (
-                                <Text style={{color:'white',textAlign:'center',fontSize:16,margin:2,backgroundColor:calculateColor(question.userAnswer,index,question.correctAnswer)}}>{String.fromCharCode(index + 97)}) {answer}{calculateEmoji(question.userAnswer,index,question.correctAnswer)}</Text>
-                            )
-                        })}
+            {quiz && answersData.currentQuestion >= quiz?.questions?.length && (<ScrollView>
+                <Text style={{color:'white',fontSize:23,fontWeight:'bold',textAlign:'center', marginBottom: 9}}>Quiz Grade: {calculateGrade()}%</Text>
+                {quiz?.questions?.map((question, index) => (
+                    <View key={index + 1} style={{ alignItems: 'center', margin: 5 }}>
+                        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>Question {index + 1}</Text>
+                        <Text style={{ color: 'wheat', fontSize: 15, fontWeight: '400', textAlign: 'center' }}>{question?.content}</Text>
+                        {question?.answers?.map((answer, ind) => (
+                            <Text key={ind + 1} style={{ color: 'white', fontSize: 16, margin: 2, backgroundColor: calculateColor(answersData?.userAnswers[index], ind, question?.correctAnswer), textAlign: 'center' }}>
+                                {String.fromCharCode(ind + 97)}) {answer}{calculateEmoji(answersData?.userAnswers[index], ind, question?.correctAnswer)}
+                            </Text>
+                        ))}
                     </View>
-                )})}
-            </ScrollView>
-            </View>
+                ))}</ScrollView>)
             }
             <SongModal gapValue={25} />
         </LinearGradient>
@@ -137,6 +160,7 @@ const styles = StyleSheet.create({
     backButton: {
         position: 'absolute', // Position the back button absolutely
         left: 20, // Adjust this value as needed
+        zIndex:10
     }, quizText: {
         color: 'white',
         fontSize: 25,
@@ -153,7 +177,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         alignItems: "center",
         justifyContent: "center",
-        margin:12
+        margin: 12
     },
     optionText: {
         fontSize: 16,

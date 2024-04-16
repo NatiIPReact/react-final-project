@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { useGlobalState } from '../components/user';
 import { apiStart } from '../api'
 import { useNavigation } from '@react-navigation/native';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { AntDesign, Ionicons, FontAwesome } from '@expo/vector-icons';
 import ProfilePicture from '../ProfilePicture';
 import SongModal from '../SongModal';
 
@@ -66,6 +66,21 @@ const MyLibrary = () => {
       .catch(e => console.log(e));
     setModalBorderColor('black');
   };
+  const deletePlaylist = (playlistToDelete) => {
+    const api = `${apiStart}/Playlists/DeleteUserPlaylist/PlaylistID/${playlistToDelete.id}/UserID/${user.id}`;
+    fetch(api, { method: "DELETE", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+    .then((res) => res.json())
+    .then(res => {
+      let tmp = [...playlists];
+      for (i in tmp) {
+        if (tmp[i].id === playlistToDelete.id) {
+          tmp.splice(i,1)
+          break;
+        }
+      }
+      setPlaylists([...tmp]);
+    }).catch(e => console.log(e));
+  };
   return (
     <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
       <ScrollView style={{ marginTop: 50 }}>
@@ -90,16 +105,23 @@ const MyLibrary = () => {
             </View>
           </Pressable>
           {playlists.map((item, index) => (
-            <Pressable onPress={() => navigation.navigate('Playlist', {
-              item: item,
-              playlistImage: playlistsImages[index % playlistsImages.length]
-            })} key={item?.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 10 }}>
-              <Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: playlistsImages[index % playlistsImages.length] }} />
-              <View>
-                <Text style={{ color: 'white' }}>{item?.name}</Text>
-                <Text style={{ color: 'white', marginTop: 7 }}>{item?.numberOfSongs} Songs</Text>
-              </View>
-            </Pressable>
+            <>
+              <Pressable onPress={() => navigation.navigate('Playlist', {
+                item: item,
+                playlistImage: playlistsImages[index % playlistsImages.length]
+              })} key={item?.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 10, justifyContent: 'space-between' }}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: playlistsImages[index % playlistsImages.length] }} />
+                  <View style={{marginLeft:10}}>
+                    <Text style={{ color: 'white' }}>{item?.name}</Text>
+                    <Text style={{ color: 'white', marginTop: 7 }}>{item?.numberOfSongs} Songs</Text>
+                  </View>
+                </View>
+                <Pressable onPress={()=>deletePlaylist(item)}>
+                  <FontAwesome name='remove' size={24} color="white" />
+                </Pressable>
+              </Pressable>
+            </>
           ))}
         </View>
       </ScrollView>
