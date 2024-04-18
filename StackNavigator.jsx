@@ -15,6 +15,16 @@ import Signup from "./screens/Signup";
 import Quizzes from "./screens/Quizzes";
 import HistoricQuiz from "./screens/HistoricQuiz";
 import PlayQuiz from "./screens/PlayQuiz";
+import Admin from "./screens/Admin";
+import SongsReport from "./screens/SongsReport";
+import ArtistsReport from "./screens/ArtistsReport";
+import UsersReport from "./screens/UsersReport";
+import GenresReport from "./screens/GenresReport";
+import GeneralReport from "./screens/GeneralReport";
+import EditProfile from "./screens/EditProfile";
+import ContactUs from "./screens/ContactUs";
+import MessagesReport from "./screens/MessagesReport";
+import Additions from "./screens/Additions";
 
 const Tab = createBottomTabNavigator();
 
@@ -71,6 +81,16 @@ function Navigation() {
                 <Stack.Screen name="Quiz" component={Quizzes} options={{headerShown:false}}/>
                 <Stack.Screen name="SpecificQuizHistory" component={HistoricQuiz} options={{headerShown:false}}/>
                 <Stack.Screen name="PlayQuiz" component={PlayQuiz} options={{headerShown:false}}/>
+                <Stack.Screen name="Admin" component={Admin} options={{headerShown:false}}/>
+                <Stack.Screen name="SongsReport" component={SongsReport} options={{headerShown:false}}/>
+                <Stack.Screen name="ArtistsReport" component={ArtistsReport} options={{headerShown:false}}/>
+                <Stack.Screen name="UsersReport" component={UsersReport} options={{headerShown:false}}/>
+                <Stack.Screen name="GenresReport" component={GenresReport} options={{headerShown:false}}/>
+                <Stack.Screen name="GeneralReport" component={GeneralReport} options={{headerShown:false}}/>
+                <Stack.Screen name="EditProfile" component={EditProfile} options={{headerShown:false}}/>
+                <Stack.Screen name="ContactUs" component={ContactUs} options={{headerShown:false}}/>
+                <Stack.Screen name="Messages" component={MessagesReport} options={{headerShown:false}}/>
+                <Stack.Screen name="Additions" component={Additions} options={{headerShown:false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

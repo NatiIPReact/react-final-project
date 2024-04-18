@@ -43,8 +43,12 @@ const EmailLogin = () => {
                     setErrorMessage(user.message);
                     return;
                 }
-                if (user.isBanned) {
+                if (user?.isBanned === true) {
                     setErrorMessage("You're banned!");
+                    return;
+                }
+                if (user?.email === "admin@gmail.com") {
+                    navigation.navigate("Admin")
                     return;
                 }
                 setErrorMessage("");

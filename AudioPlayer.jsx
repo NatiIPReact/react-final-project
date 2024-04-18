@@ -42,6 +42,61 @@ const AudioPlayerContext = ({children}) => {
             currentInQueue:curr}))
     })
     };
+    const playRadioStation = (index) => {
+        let RadioStations = [{
+            'uri':'https://stream.radiojar.com/gngfpx33hwzuv',
+            "genreName":'Kids Radio Live',
+            'performerImage':'https://i.imgur.com/IdLpgkF_d.webp?maxwidth=760&fidelity=grand',
+            'performerName':'LIVE STATION',
+            'songLength':0,
+            'songName':'Kids Radio Live',
+            isRadioStation:true
+        },{
+            'uri':'https://streams.90s90s.de/dab-national/mp3-192/',
+            "genreName":'German Pop Radio Live',
+            'performerImage':'https://freerangestock.com/sample/64357/pop-music-means-sound-track-and-melodies.jpg',
+            'performerName':'LIVE STATION',
+            'songLength':0,
+            'songName':'German Pop Radio Live',
+            isRadioStation:true
+        },{
+            'uri':'https://streams.90s90s.de/danceradio/mp3-192/',
+            "genreName":'German Dance Radio Live',
+            'performerImage':'https://static.mytuner.mobi/media/tvos_radios/q8ne5lhjxbcf.jpg',
+            'performerName':'LIVE STATION',
+            'songLength':0,
+            'songName':'German Dance Radio Live',
+            isRadioStation:true
+        },{
+            'uri':'https://streams.90s90s.de/danceradio/mp3-192/',
+            "genreName":'Dance Radio Live',
+            'performerImage':'https://static.mytuner.mobi/media/tvos_radios/mmvGSBqcQB.png',
+            'performerName':'LIVE STATION',
+            'songLength':0,
+            'songName':'Dance Radio Live',
+            isRadioStation:true
+        },{
+            'uri':'https://stream.radiojar.com/gngfpx33hwzuv',
+            "genreName":'German Kids Radio Live',
+            'performerImage':'https://www.radio.net/images/broadcasts/81/9d/104930/2/c300.png',
+            'performerName':'LIVE STATION',
+            'songLength':0,
+            'songName':'German Kids Radio Live',
+            isRadioStation:true
+        },{
+            'uri':'https://streams.90s90s.de/dab-national/mp3-192/',
+            "genreName":'Pop Radio Live',
+            'performerImage':'https://freerangestock.com/sample/64357/pop-music-means-sound-track-and-melodies.jpg',
+            'performerName':'LIVE STATION',
+            'songLength':0,
+            'songName':'Pop Radio Live',
+            isRadioStation:true
+        }];
+        setAudioPlayer(prevState => ({...prevState,totalDuration:audioPlayer.totalDuration === 0 ? 1 : 0,
+            currentInQueue:0,
+            songQueue:[RadioStations[index]],
+            currentTrack:RadioStations[index]}))
+    }
     const play = async (nextTrack) => {
         const songURL = `${apiStart}/Songs/GetSongByID/SongID/${nextTrack.songID}`;
         try {
@@ -95,14 +150,17 @@ const AudioPlayerContext = ({children}) => {
         updateQueueAndPlay(array[0].songID,array,0);
       }
     const playNextTrack = async () => {
-        if (audioPlayer.currentSound) {
-            await audioPlayer.currentSound.pauseAsync();
-            setAudioPlayer(prevState => ({...prevState, currentSound:null}))
+        if (audioPlayer?.currentTrack?.isRadioStation === true) {
+            return;
         }
         let tmp = audioPlayer.currentInQueue;
         tmp++;
         if (tmp >= audioPlayer.songQueue.length) {
             tmp=0;
+        }
+        if (audioPlayer.currentSound && audioPlayer?.currentTrack?.songID !== audioPlayer.songQueue[tmp].songID) {
+            await audioPlayer.currentSound.pauseAsync();
+            setAudioPlayer(prevState => ({...prevState, currentSound:null}))
         }
         if (tmp < audioPlayer.songQueue.length && tmp >= 0) {
             //setAudioPlayer(prevState => ({...prevState,currentTrack:audioPlayer.songQueue[tmp],currentInQueue:tmp}))
@@ -120,9 +178,23 @@ const AudioPlayerContext = ({children}) => {
         isPlaying:false,
         totalDuration:null
     });
+    const streamRadio = async () => {
+        if (audioPlayer.currentSound) {
+            await audioPlayer.currentSound.pauseAsync();
+        }
+        await Audio.setAudioModeAsync({playsInSilentModeIOS:true,staysActiveInBackground:false,shouldDuckAndroid:false});
+        const {sound,status} = await Audio.Sound.createAsync({uri:audioPlayer?.currentTrack?.uri},{shouldPlay:true,isLooping:false},onPlaybackStatusUpdate);
+        onPlaybackStatusUpdate(status);
+        setAudioPlayer(prevState => ({...prevState, isPlaying:status.isLoaded, currentSound:sound}))
+        await sound.playAsync();
+    }
     useEffect(()=> {
         if (isFirstRender.current === true) {
             isFirstRender.current=false;
+            return;
+        }
+        if (audioPlayer.totalDuration !== null && audioPlayer?.currentTrack?.isRadioStation === true) {
+            streamRadio();
             return;
         }
         if (audioPlayer.totalDuration !== null) {
@@ -130,19 +202,22 @@ const AudioPlayerContext = ({children}) => {
         }
     },[audioPlayer.totalDuration])
     const playPreviousTrack = async () => {
-        if (audioPlayer.currentSound) {
-            await audioPlayer.currentSound.pauseAsync();
-            setAudioPlayer(prevState => ({...prevState,currentSound:null}))
+        if (audioPlayer?.currentTrack?.isRadioStation === true) {
+            return;
         }
         let tmp = audioPlayer.currentInQueue - 1;
         if (tmp < 0) {
             tmp=audioPlayer.songQueue.length-1;
+        }
+        if (audioPlayer.currentSound && audioPlayer?.currentTrack?.songID !== audioPlayer.songQueue[tmp].songID) {
+            await audioPlayer.currentSound.pauseAsync();
+            setAudioPlayer(prevState => ({...prevState,currentSound:null}))
         }
         if (tmp < audioPlayer.songQueue.length && tmp >= 0) {
             //setAudioPlayer(prevState => ({...prevState,currentInQueue:tmp,currentTrack:audioPlayer.songQueue[tmp]}))
             await updateQueueAndPlay(audioPlayer.songQueue[tmp].songID, audioPlayer.songQueue, tmp);
         }
     }
-    return (<AudioPlayer.Provider value={{audioPlayer, updateTrackIsInFav,setAudioPlayer,playPreviousTrack,playNextTrack,handlePlayPause,updateQueueAndPlay,shuffleQueue}}>{children}</AudioPlayer.Provider>)
+    return (<AudioPlayer.Provider value={{audioPlayer, updateTrackIsInFav,playRadioStation,setAudioPlayer,playPreviousTrack,playNextTrack,handlePlayPause,updateQueueAndPlay,shuffleQueue}}>{children}</AudioPlayer.Provider>)
 }
 export {AudioPlayerContext,AudioPlayer}

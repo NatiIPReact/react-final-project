@@ -8,11 +8,13 @@ import ProfilePicture from '../ProfilePicture'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SongModal from '../SongModal'
 import { useNavigation } from '@react-navigation/native'
+import { usePlaylistsContext } from '../Playlists'
 
 const ProfileScreen = () => {
   const { user, setUser } = useGlobalState();
   const navigation = useNavigation();
-  const [playlists, setPlaylists] = useState([]);
+  //const [playlists, setPlaylists] = useState([]);
+  const {playlists, setPlaylists} = usePlaylistsContext();
   useEffect(() => {
     const api = `${apiStart}/Playlists/GetUserPlaylists/UserID/${user.id}`;
     fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
@@ -32,7 +34,7 @@ const ProfileScreen = () => {
       <ScrollView style={{ marginTop: 50 }}>
         <View style={{ padding: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <ProfilePicture name={user.name} />
+          {(user !== undefined && user.image == null) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
             <View>
               <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>{user?.name}</Text>
               <Text style={{ color: 'gray', fontSize: 16, fontWeight: 'bold' }}>Member since {user?.registrationDate.split('-')[0]}</Text>
@@ -40,6 +42,12 @@ const ProfileScreen = () => {
           </View>
         </View>
         <View style={{marginHorizontal:12,marginVertical:5,flexDirection:'row',alignItems:'center',gap:10}}>
+        <Pressable onPress={()=>navigation.navigate('EditProfile')} style={{backgroundColor:'#282828',padding:10,borderRadius:30}}>
+            <Text style={{fontSize:15,color:'white'}}>Edit Profile</Text>
+          </Pressable>
+          <Pressable onPress={()=>navigation.navigate('ContactUs')} style={{backgroundColor:'#282828',padding:10,borderRadius:30}}>
+            <Text style={{fontSize:15,color:'white'}}>Contact Us</Text>
+          </Pressable>
           <Pressable onPress={logout} style={{backgroundColor:'#282828',padding:10,borderRadius:30}}>
             <Text style={{fontSize:15,color:'white'}}>Logout</Text>
           </Pressable>
@@ -51,7 +59,7 @@ const ProfileScreen = () => {
               item: item,
               playlistImage: playlistsImages[index % playlistsImages.length]
             })} key={item?.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 10 }}>
-              <Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: playlistsImages[Math.floor(Math.random() * playlistsImages.length)] }} />
+              <Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: playlistsImages[index % playlistsImages.length] }} />
               <View>
                 <Text style={{ color: 'white' }}>{item?.name}</Text>
                 <Text style={{ color: 'white', marginTop: 7 }}>{item?.numberOfSongs} Songs</Text>

@@ -1,11 +1,13 @@
 import { StyleSheet, Text, View, Image, Pressable, Modal, TextInput, Button } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { apiStart } from './api'
-import { Ionicons, AntDesign, Entypo, FontAwesome, Feather } from '@expo/vector-icons';
+import { Ionicons, AntDesign, Entypo, FontAwesome, Feather, MaterialIcons } from '@expo/vector-icons';
 import { BottomModal, ModalContent } from 'react-native-modals';
 import { AudioPlayer } from './AudioPlayer';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Linking } from 'react-native';
+import LyricsOverlay from './LyricsModal';
 
 const SongModal = ({ gapValue }) => {
     const { audioPlayer, setAudioPlayer, playPreviousTrack, playNextTrack, handlePlayPause, updateTrackIsInFav } = useContext(AudioPlayer);
@@ -15,6 +17,7 @@ const SongModal = ({ gapValue }) => {
     const [user, setUser] = useState(null);
     const [message, setMessage] = useState('');
     const navigation = useNavigation();
+    const [showLyricsVisible, setShowLyricsVisible] = useState(false);
     const circleSize = 12;
     const getPlaylists = () => {
         const api = `${apiStart}/Playlists/GetUserPlaylists/UserID/${user?.id}`;
@@ -81,6 +84,39 @@ const SongModal = ({ gapValue }) => {
                 setMessage(res.message)
             }).catch((e) => console.log(e))
     };
+
+    async function OpenOnYT() {
+        const song = audioPlayer?.currentTrack?.songName;
+        const artist = audioPlayer?.currentTrack?.performerName;
+        const apiKey = 'AIzaSyAUBDnPCnsMDLrpjpfT9RNnIi25AQD65B8';
+        const formattedSongName = encodeURIComponent(song);
+        const formattedArtistName = encodeURIComponent(artist);
+        const songNameSearch = song.replace(/\s/g, '+');
+        const artistNaeSearch = artist.replace(/\s/g, '+');
+        const apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${formattedSongName} ${formattedArtistName}&key=${apiKey}`;
+        const YTSearchUrl = `https://www.youtube.com/results?search_query=${songNameSearch} ${artistNaeSearch}`;
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            // Retrieve the video ID of the first search result
+            const videoId = data.items[0].id.videoId;
+            // Construct the YouTube video URL
+            if (audioPlayer?.isPlaying === true) {
+                await handlePlayPause();
+            }
+            const YTLink = `https://www.youtube.com/watch?v=${videoId}`;
+            Linking.openURL(YTLink);
+        } catch (error) {
+            console.log(error);
+            return YTSearchUrl;
+        }
+    }
+    const showLyrics = () => {
+        setShowLyricsVisible(true);
+    };
+    const hideLyricsModal = () => {
+        setShowLyricsVisible(false);
+    };
     return (
         <>
             {audioPlayer.currentTrack && (
@@ -92,10 +128,12 @@ const SongModal = ({ gapValue }) => {
                         }}>{audioPlayer?.currentTrack?.songName} • {audioPlayer?.currentTrack?.performerName}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        { (!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
                         <Pressable>
                             {audioPlayer?.currentTrack?.isInFav == 1 ? <AntDesign onPress={() => deleteFromFavorites(audioPlayer?.currentTrack?.songID)} name="heart" size={24} color="#1DB954" />
                                 : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}
                         </Pressable>
+                        }
                         <Pressable onPress={handlePlayPause}>
                             {audioPlayer?.isPlaying === true ? <AntDesign name="pausecircle" size={24} color="white" />
                                 : <AntDesign name="play" size={24} color="white" />}
@@ -110,9 +148,10 @@ const SongModal = ({ gapValue }) => {
                         <Pressable style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                             <AntDesign name="down" size={24} color="white" onPress={() => setModalVisible(!modalVisible)} />
                             <Text style={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}>{audioPlayer?.currentTrack?.songName}</Text>
+                            {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
                             <Pressable onPress={showPlaylists}>
                                 <Ionicons name="add" size={45} color='white' />
-                            </Pressable>
+                            </Pressable>}
                         </Pressable>
                         <View style={{ height: 70 }} />
                         <View style={{ padding: 10 }}>
@@ -122,8 +161,9 @@ const SongModal = ({ gapValue }) => {
                                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>{audioPlayer?.currentTrack?.songName}</Text>
                                     <Text style={{ marginTop: 4, color: '#D3D3D3' }}>{audioPlayer?.currentTrack?.performerName}</Text>
                                 </View>
+                                <View>
                                 {audioPlayer?.currentTrack?.isInFav == 1 ? <AntDesign onPress={() => deleteFromFavorites(audioPlayer?.currentTrack?.songID)} name="heart" size={24} color="#1DB954" />
-                                    : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}
+                                    : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}</View>
                             </View>
                             <View style={{ marginTop: 10 }}>
                                 <View style={{ width: '100%', marginTop: 10, height: 3, backgroundColor: 'gray', borderRadius: 5 }}>
@@ -142,9 +182,11 @@ const SongModal = ({ gapValue }) => {
                                 </View>
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 17 }}>
-                                <Pressable>
-                                    <FontAwesome name="arrows" size={30} color="#03C03C" />
+                                {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
+                                <Pressable onPress={showLyrics}>
+                                    <MaterialIcons name="lyrics" size={30} color="purple" />
                                 </Pressable>
+                                }
                                 <Pressable onPress={playPreviousTrack}>
                                     <Ionicons name="play-skip-back" size={30} color="white" />
                                 </Pressable>
@@ -163,13 +205,22 @@ const SongModal = ({ gapValue }) => {
                                 <Pressable onPress={playNextTrack}>
                                     <Ionicons name="play-skip-forward" size={30} color="white" />
                                 </Pressable>
-                                <Pressable>
-                                    <Feather name="repeat" size={30} color="#03C03C" />
-                                </Pressable>
+                                {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
+                                <Pressable onPress={OpenOnYT} style={{
+                                    backgroundColor: 'white',
+                                    borderRadius: 15, // Half of the size of the icon to make it circular
+                                    width: 30, // Size of the icon
+                                    height: 30, // Size of the icon
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}>
+                                    <Entypo name="youtube-with-circle" size={30} color="#FF0000" />
+                                </Pressable> }
                             </View>
                         </View>
                     </View>
                 </ModalContent>
+                {showLyricsVisible && <LyricsOverlay song={audioPlayer.currentTrack} hideLyricsModal={hideLyricsModal}/>}
             </BottomModal>
             {addPlaylistModalVisible === true && (
                 <View style={{ flex: 1 }}>
@@ -177,18 +228,18 @@ const SongModal = ({ gapValue }) => {
                         visible={addPlaylistModalVisible}
                         animationType="slide"
                         transparent={true}
-                        onRequestClose={() => {setAddPlaylistModalVisible(false); setMessage('');}} >
+                        onRequestClose={() => { setAddPlaylistModalVisible(false); setMessage(''); }} >
                         <Pressable
                             style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
-                            onPress={() => {setAddPlaylistModalVisible(false); setMessage('');}}
+                            onPress={() => { setAddPlaylistModalVisible(false); setMessage(''); }}
                         >
                             <View style={styles.modalContainer}>
                                 <View style={styles.modalContent}>
-                                    <Text style={{ textAlign:'center', color: '#3bc8e7', fontSize: 25, fontWeight: 'bold',marginBottom:5 }}>Choose Playlist</Text>
+                                    <Text style={{ textAlign: 'center', color: '#3bc8e7', fontSize: 25, fontWeight: 'bold', marginBottom: 5 }}>Choose Playlist</Text>
                                     {playlists && playlists?.map((p, index) => (
-                                        <Pressable key={index} onPress={() => addSongToPlaylist(p?.id)}><Text style={{ textAlign:'center', color: 'black', fontSize: 20,margin:5 }}>{p?.name}</Text></Pressable>
+                                        <Pressable key={index} onPress={() => addSongToPlaylist(p?.id)}><Text style={{ textAlign: 'center', color: 'black', fontSize: 20, margin: 5 }}>{p?.name}</Text></Pressable>
                                     ))}
-                                    {message != '' && <Text style={{color:message === "Success!" ? 'green' : 'red',fontSize:28,textAlign:'center'}}>{message}</Text>}
+                                    {message != '' && <Text style={{ color: message === "Success!" ? 'green' : 'red', fontSize: 28, textAlign: 'center' }}>{message}</Text>}
                                 </View>
                             </View>
                         </Pressable>

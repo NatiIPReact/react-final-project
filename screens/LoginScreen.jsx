@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, SafeAreaView, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Entypo, MaterialCommunityIcons, AntDesign } from "@expo/vector-icons";
+import { Entypo, MaterialCommunityIcons, AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from 'expo-auth-session/providers/google';
@@ -16,7 +16,7 @@ const LoginScreen = () => {
         webClientId: '578240915619-306oldrb57q89cd6cj8g1ia7mnt8nbgo.apps.googleusercontent.com'
     });
     useEffect(() => {
-        console.log(response)
+        console.log(request)
       }, [response]);
     useEffect(() => {handleGoogleSignin()},[response])
     async function handleGoogleSignin () {
@@ -137,6 +137,26 @@ const LoginScreen = () => {
                 >
                     <MaterialCommunityIcons name="email" size={24} color="white" />
                     <Text style={{ fontWeight: "500", color: "white", textAlign: "center", flex: 1 }}>Sign up free</Text>
+                </Pressable>
+                <Pressable onPress={() => navigation.navigate('Additions')}
+                    style={{
+                        backgroundColor: "#131624",
+                        padding: 10,
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                        width: 300,
+                        borderRadius: 25,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginVertical: 10,
+                        borderColor: "#C0C0C0",
+                        borderWidth: 0.8
+                    }}
+                >
+                    <Ionicons name="add-sharp" size={24} color="white" />
+                    <Text style={{ fontWeight: "500", color: "white", textAlign: "center", flex: 1 }}>My Additions</Text>
                 </Pressable>
             </SafeAreaView>
         </LinearGradient>

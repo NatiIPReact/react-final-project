@@ -20,10 +20,10 @@ const SongItem = (props) => {
         <Text style={{ marginTop: 4, color: '#989898' }}>{props?.item?.performerName} • {props?.item?.genreName}</Text>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginHorizontal: 10 }}>
+        <Text style={{color:'white'}}>{props?.item?.length}</Text>
         <Pressable>
           <AntDesign name="heart" size={24} color="#1DB954" onPress={() => props.deleteFromFavorites(props.item.songID)} />
         </Pressable>
-        <Entypo name="dots-three-vertical" size={20} color="#C0C0C0" />
       </View>
     </Pressable>
   )

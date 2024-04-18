@@ -2,7 +2,7 @@ import { FlatList, Pressable, StyleSheet, Text, View, VirtualizedList, Image } f
 import React, { useContext, useEffect, useState, useRef } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { ScrollView } from 'react-native'
-import { Ionicons, AntDesign, MaterialCommunityIcons, Entypo, FontAwesome, Feather } from '@expo/vector-icons';
+import { Ionicons, AntDesign, MaterialCommunityIcons, Entypo, FontAwesome, Feather, Fontisto } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import { TextInput } from 'react-native';
 import { useGlobalState } from '../components/user';
@@ -22,6 +22,8 @@ const LikedSongsScreen = () => {
     const [totalTime, setTotalTime] = useState('00:00');
     const value = useRef(0);
     const { user, setUser } = useGlobalState();
+    const [sortingModalVisible, setSortingModalVisible] = useState(false);
+    const [sortedBy, setSortedBy] = useState(-1);
     async function getLikedSongs() {
         const api = `${apiStart}/Users/GetUserFavorites/UserID/${user.id}`;
         fetch(api, { method: 'GET', headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
@@ -95,6 +97,35 @@ const LikedSongsScreen = () => {
     const shufflePlay = () => {
         shuffleQueue(likedSongs);
     };
+    const convertTimeToSeconds = (timeString) => {
+        const [minutes, seconds] = timeString.split(':').map(Number);
+        return minutes * 60 + seconds;
+    };
+    const sort = (sortBy) => {
+        setSortingModalVisible(false);
+        let tmp = [...searchedTracks];
+        let sorted = [];
+        switch (sortBy) {
+            case 0:
+                sorted = tmp.slice().sort((a, b) => a.songName.localeCompare(b.songName));
+                break;
+            case 1:
+                sorted = tmp.slice().sort((a, b) => {
+                    const lengthA = convertTimeToSeconds(a.length);
+                    const lengthB = convertTimeToSeconds(b.length);
+                    return lengthA - lengthB;
+                });
+                break;
+            case 2:
+                sorted = tmp.slice().sort((a, b) => a.performerName.localeCompare(b.performerName));
+                break;
+            case 3:
+                sorted = tmp.slice().sort((a, b) => a.genreName.localeCompare(b.genreName));
+                break;
+        }
+        setSearchedTracks([...sorted]);
+        setSortedBy(sortBy);
+    };
     return (
         <>
             <LinearGradient colors={["#641385", "#516395"]} style={{ flex: 1 }}>
@@ -107,7 +138,7 @@ const LikedSongsScreen = () => {
                             <AntDesign name="search1" size={20} color="white" />
                             <TextInput placeholderTextColor={"white"} value={input} onChangeText={(text) => handleInputChange(text)} placeholder="Find in Liked Songs" style={{ fontWeight: '500', color: 'white' }} />
                         </Pressable>
-                        <Pressable style={{ marginHorizontal: 10, backgroundColor: '#42275a', padding: 10, borderRadius: 7, height: 38 }}>
+                        <Pressable onPress={() => setSortingModalVisible(true)} style={{ marginHorizontal: 10, backgroundColor: '#42275a', padding: 10, borderRadius: 7, height: 38 }}>
                             <Text style={{ color: 'white' }}>Sort</Text>
                         </Pressable>
                     </Pressable>
@@ -133,6 +164,34 @@ const LikedSongsScreen = () => {
                         <SongItem deleteFromFavorites={deleteFromFavorites} item={item} onPress={playSong} ind={index} isPlaying={item?.songID === audioPlayer?.currentTrack?.songID} />
                     )} />
                 </View>
+                {sortingModalVisible === true &&
+                    <View style={styles.backdrop}>
+                        <Pressable
+                            style={styles.backdrop}
+                            onPress={() => setSortingModalVisible(false)}
+                        >
+                            <View style={styles.bottomSheet}>
+                                <Text style={{ fontSize: 25, fontWeight: 'bold', textAlign: 'center', color: 'white', marginBottom: 10 }}>Sort By</Text>
+                                <Pressable style={{ flex: 1, flexDirection: 'row' }} onPress={() => sort(0)}>
+                                    <Fontisto name={sortedBy === 0 ? 'radio-btn-active' : 'radio-btn-passive'} size={24} color='white' />
+                                    <Text style={{ color: 'white', fontSize: 20, marginLeft: 10, fontWeight: '500' }}>Sort By Name</Text>
+                                </Pressable>
+                                <Pressable style={{ flex: 1, flexDirection: 'row' }} onPress={() => sort(1)}>
+                                    <Fontisto name={sortedBy === 1 ? 'radio-btn-active' : 'radio-btn-passive'} size={24} color='white' />
+                                    <Text style={{ color: 'white', fontSize: 20, marginLeft: 10, fontWeight: '500' }}>Sort By Length</Text>
+                                </Pressable>
+                                <Pressable style={{ flex: 1, flexDirection: 'row' }} onPress={() => sort(2)}>
+                                    <Fontisto name={sortedBy === 2 ? 'radio-btn-active' : 'radio-btn-passive'} size={24} color='white' />
+                                    <Text style={{ color: 'white', fontSize: 20, marginLeft: 10, fontWeight: '500' }}>Sort By Artist</Text>
+                                </Pressable>
+                                <Pressable style={{ flex: 1, flexDirection: 'row' }} onPress={() => sort(3)}>
+                                    <Fontisto name={sortedBy === 3 ? 'radio-btn-active' : 'radio-btn-passive'} size={24} color='white' />
+                                    <Text style={{ color: 'white', fontSize: 20, marginLeft: 10, fontWeight: '500' }}>Sort By Genre</Text>
+                                </Pressable>
+                            </View>
+                        </Pressable>
+                    </View>
+                }
             </LinearGradient>
             <SongModal gapValue={25} />
         </>
@@ -141,4 +200,23 @@ const LikedSongsScreen = () => {
 
 export default LikedSongsScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    backdrop: {
+        position: 'absolute',
+        flex: 1,
+        top: 0,
+        left: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        width: "100%",
+        height: '100%',
+        justifyContent: 'flex-end'
+    },
+    bottomSheet: {
+        width: '100%',
+        height: '40%',
+        backgroundColor: '#131624',
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        paddingVertical: 20
+    }
+})

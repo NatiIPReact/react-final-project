@@ -1,5 +1,5 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import { apiStart } from '../api'
@@ -12,14 +12,18 @@ import { useGlobalState } from '../components/user'
 import ProfilePicture from '../ProfilePicture'
 import SongModal from '../SongModal'
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'
+import { AudioPlayer } from '../AudioPlayer'
+import { usePlaylistsContext } from '../Playlists'
 
 const HomeScreen = () => {
     const [featuredSongs, setFeaturedSongs] = useState([]);
     const [topArtists, setTopArtists] = useState([]);
+    const { audioPlayer, setAudioPlayer, playRadioStation } = useContext(AudioPlayer);
     const { user, setUser } = useGlobalState();
     const [message, setMessage] = useState('');
     const navigation = useNavigation();
-    const [playlists, setPlaylists] = useState([]);
+    const {playlists, setPlaylists} = usePlaylistsContext();
+    //const [playlists, setPlaylists] = useState([]);
     const getUser = async () => {
         try {
             const userAsJSON = await AsyncStorage.getItem('@user');
@@ -81,23 +85,23 @@ const HomeScreen = () => {
             <ScrollView style={{ marginTop: 50 }}>
                 <View style={{ padding: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        {(user !== undefined) && (<ProfilePicture name={user?.name} />)}
+                        {(user !== undefined && user?.image == null) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user?.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
                         <Text style={{ marginLeft: 10, fontSize: 20, fontWeight: 'bold', color: 'white' }}>{message}</Text>
                     </View>
                 </View>
                 <View style={{ height: 10 }} />
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Pressable onPress={()=>navigation.navigate('Liked')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
+                    <Pressable onPress={() => navigation.navigate('Liked')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
                         <LinearGradient colors={['#33006F', '#FFFFFF']}>
-                            <Pressable onPress={()=>navigation.navigate('Liked')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
+                            <Pressable onPress={() => navigation.navigate('Liked')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
                                 <AntDesign name='heart' size={24} color='white' />
                             </Pressable>
                         </LinearGradient>
                         <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 13 }}>Liked Songs</Text>
                     </Pressable>
-                    <Pressable onPress={()=>navigation.navigate('Quiz')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
+                    <Pressable onPress={() => navigation.navigate('Quiz')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
                         <LinearGradient colors={['#00568f', '#FFFFFF']}>
-                            <Pressable onPress={()=>navigation.navigate('Quiz')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
+                            <Pressable onPress={() => navigation.navigate('Quiz')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
                                 <MaterialIcons name='quiz' size={24} color='white' />
                             </Pressable>
                         </LinearGradient>
@@ -116,6 +120,35 @@ const HomeScreen = () => {
                 </Text>
                 <FlatList horizontal showsHorizontalScrollIndicator={false} data={topArtists} renderItem={({ item, index }) => <TopArtistCard item={item} key={index} />} />
                 <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>
+                    Live Radio
+                </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(0)}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://i.imgur.com/IdLpgkF_d.webp?maxwidth=760&fidelity=grand' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Kids</Text>
+                    </Pressable>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(1)}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://freerangestock.com/sample/64357/pop-music-means-sound-track-and-melodies.jpg' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>German Pop</Text>
+                    </Pressable>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(2)}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://static.mytuner.mobi/media/tvos_radios/q8ne5lhjxbcf.jpg' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>German Music</Text>
+                    </Pressable>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(3)}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://static.mytuner.mobi/media/tvos_radios/mmvGSBqcQB.png' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Dance</Text>
+                    </Pressable>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(4)}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://www.radio.net/images/broadcasts/81/9d/104930/2/c300.png' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Kids</Text>
+                    </Pressable>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(5)}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://i.imgur.com/WWn5XN8_d.webp?maxwidth=760&fidelity=grand' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Pop</Text>
+                    </Pressable>
+                </ScrollView>
+                <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>
                     Your Playlists
                 </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -129,7 +162,7 @@ const HomeScreen = () => {
                         </Pressable>
                     ))}
                 </ScrollView>
-                <View style={{height:100}}></View>
+                <View style={{ height: 100 }}></View>
             </ScrollView>
             <SongModal gapValue={85} />
         </LinearGradient>

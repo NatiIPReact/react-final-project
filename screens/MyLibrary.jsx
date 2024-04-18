@@ -7,11 +7,13 @@ import { useNavigation } from '@react-navigation/native';
 import { AntDesign, Ionicons, FontAwesome } from '@expo/vector-icons';
 import ProfilePicture from '../ProfilePicture';
 import SongModal from '../SongModal';
+import { usePlaylistsContext } from '../Playlists';
 
 const MyLibrary = () => {
   const navigation = useNavigation();
   const { user, setUser } = useGlobalState();
-  const [playlists, setPlaylists] = useState([]);
+  const {playlists, setPlaylists} = usePlaylistsContext();
+  //const [playlists, setPlaylists] = useState([]);
   const [numberOfLikedSongs, setNumberOfLikedSongs] = useState(0);
   const [playlistName, setPlaylistName] = useState('');
   const [addPlaylistModalVisible, setAddPlaylistModalVisible] = useState(false);
@@ -58,6 +60,7 @@ const MyLibrary = () => {
       .then(res => {
         setAddPlaylistModalVisible(false);
         let item = { id: res.playlistID, name: playlistName, numberOfSongs: 0 }
+        setPlaylists([...playlists,item]);
         navigation.navigate('Playlist', {
           item: item,
           playlistImage: playlistsImages[Math.floor(Math.random() * playlistsImages.length)]
@@ -86,7 +89,7 @@ const MyLibrary = () => {
       <ScrollView style={{ marginTop: 50 }}>
         <View style={{ padding: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <ProfilePicture name={user.name} />
+          {(user !== undefined && user.image == null) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
             <Text style={{ marginLeft: 10, fontSize: 20, fontWeight: 'bold', color: 'white' }}>Your Library</Text>
           </View>
           <Pressable onPress={addPlaylist}>
@@ -105,11 +108,10 @@ const MyLibrary = () => {
             </View>
           </Pressable>
           {playlists.map((item, index) => (
-            <>
-              <Pressable onPress={() => navigation.navigate('Playlist', {
+              <Pressable key={item?.id} onPress={() => navigation.navigate('Playlist', {
                 item: item,
                 playlistImage: playlistsImages[index % playlistsImages.length]
-              })} key={item?.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 10, justifyContent: 'space-between' }}>
+              })} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 10, justifyContent: 'space-between' }}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: playlistsImages[index % playlistsImages.length] }} />
                   <View style={{marginLeft:10}}>
@@ -121,7 +123,6 @@ const MyLibrary = () => {
                   <FontAwesome name='remove' size={24} color="white" />
                 </Pressable>
               </Pressable>
-            </>
           ))}
         </View>
       </ScrollView>
