@@ -15,22 +15,63 @@ const Search = () => {
     const navigation = useNavigation();
     const { user, setUser } = useGlobalState();
     const [queryResult, setQueryResult] = useState([]);
+    const [artists, setArtists] = useState([]);
     const { audioPlayer, setAudioPlayer, updateQueueAndPlay, shuffleQueue } = useContext(AudioPlayer);
     const handleInputChange = (text) => {
         setInput(text);
     };
+    function convertLengthToSeconds(mmss) {
+        var parts = mmss.split(':');
+        var minutes = parseInt(parts[0], 10);
+        var seconds = parseInt(parts[1], 10);
+        return minutes * 60 + seconds;
+    }
     useEffect(() => { if (input) search(input) }, [input]);
     const search = () => {
         const api = `${apiStart}/Songs/SearchByQuery/query/${input}/UserID/${user?.id || 0}`;
         fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             .then((res) => res.json())
             .then((res) => {
+                let artists = [];
+                let artistsIDs = [];
+                for (song of res) {
+                    if (song.performerName.toLowerCase().includes(input.toLowerCase())) {
+                        if (!artistsIDs.includes(song.performerID)) {
+                            artistsIDs.push(song.performerID);
+                            let artist = {
+                                performerID: song.performerID,
+                                performerImage: song.performerImage,
+                                performerName: song.performerName,
+                                songs: 1,
+                                length: convertLengthToSeconds(song.length)
+                            }
+                            artists.push(artist);
+                        } else {
+                            for (art of artists) {
+                                if (art.performerID === song.performerID) {
+                                    art.songs++;
+                                    art.length += convertLengthToSeconds(song.length);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                setArtists([...artists]);
                 setQueryResult(res);
             }).catch(e => console.log(e));
     };
     const playSong = (songToPlay) => {
         updateQueueAndPlay(songToPlay?.songID, [songToPlay], 0);
     };
+    function pad(val) {
+        return val < 10 ? '0' + val : val;
+    }
+    const ConvertSecondsToLength = (totalSeconds) => {
+        var minutes = Math.floor(totalSeconds / 60);
+        var seconds = totalSeconds % 60;
+        return pad(minutes) + ':' + pad(seconds);
+    }
     return (
         <>
             <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
@@ -45,25 +86,45 @@ const Search = () => {
                         </Pressable>
                     </Pressable>
                     <ScrollView>
-                    <View>
-                        <View style={{ marginTop: 10, marginHorizontal: 12 }}>
-                            {queryResult.map((track, index) => (
-                                <Pressable onPress={()=>{playSong(track)}} key={track?.songID} style={{ marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Image source={{ uri: track?.performerImage }}
-                                            style={{ width: 50, height: 50, borderRadius: 3 }} />
-                                        <View style={{ marginLeft: 10 }}>
-                                            <Text style={{ fontSize: 16, fontWeight: '500', color: audioPlayer?.currentTrack?.songID === track?.songID ? "#3FFF00" : "white" }}>{track?.songName}</Text>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 5 }}>
-                                                <Text style={{ color: 'gray', fontSize: 16, fontWeight: '500' }}>{track?.performerName} • {track?.genreName}</Text>
+                        <View>
+                            <View style={{ marginTop: 10, marginHorizontal: 12 }}>
+                                {artists.length > 0 &&
+                                    <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Artists</Text>}
+                                {artists.slice(0,3).map((artist, index) => (
+                                    <Pressable onPress={() => { navigation.navigate('Artist', { item: artist }) }} key={artist?.performerID} style={{ marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Image source={{ uri: artist?.performerImage }}
+                                                style={{ width: 50, height: 50, borderRadius: 3 }} />
+                                            <View style={{ marginLeft: 10 }}>
+                                                <Text style={{ fontSize: 16, fontWeight: '500', color: "white" }}>{artist?.performerName}</Text>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 5 }}>
+                                                    <Text style={{ color: 'gray', fontSize: 16, fontWeight: '500' }}>{artist?.songs} Songs</Text>
+                                                </View>
                                             </View>
                                         </View>
-                                    </View>
-                                    <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{track?.length}</Text>
-                                </Pressable>
-                            ))}
+                                        <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{ConvertSecondsToLength(artist?.length)}</Text>
+                                    </Pressable>
+                                ))}
+                                {queryResult.length > 0 &&
+                                    <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Songs</Text>}
+                                {queryResult.slice(0,10).map((track, index) => (
+                                    <Pressable onPress={() => { playSong(track) }} key={track?.songID} style={{ marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Image source={{ uri: track?.performerImage }}
+                                                style={{ width: 50, height: 50, borderRadius: 3 }} />
+                                            <View style={{ marginLeft: 10 }}>
+                                                <Text style={{ fontSize: 16, fontWeight: '500', color: audioPlayer?.currentTrack?.songID === track?.songID ? "#3FFF00" : "white" }}>{track?.songName}</Text>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 5 }}>
+                                                    <Text style={{ color: 'gray', fontSize: 16, fontWeight: '500' }}>{track?.performerName} • {track?.genreName}</Text>
+                                                </View>
+                                            </View>
+                                        </View>
+                                        <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{track?.length}</Text>
+                                    </Pressable>
+                                ))}
+                            </View>
                         </View>
-                    </View>
+                        <View style={{height:80}}></View>
                     </ScrollView>
                 </View>
                 <SongModal gapValue={85} />

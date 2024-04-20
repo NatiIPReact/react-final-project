@@ -7,6 +7,7 @@ import { TextInput } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import { apiStart } from '../api'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import registerForPushNotificationsAsync from '../NotificationComponent';
 
 const EmailLogin = () => {
     const [email, setEmail] = useState('');
@@ -51,7 +52,31 @@ const EmailLogin = () => {
                     navigation.navigate("Admin")
                     return;
                 }
+                if (user?.isVerified === false) {
+                    setErrorMessage("Verify your email to login!");
+                    const api = `${apiStart}/Users/InitiateNewValidation`;
+                    let verificationUser = {
+                        "id": user?.id,
+                        "email": "",
+                        "name": "",
+                        "password": "",
+                        "isVerified": false,
+                        "registrationDate": new Date(),
+                        "isBanned": false,
+                        "image": ""
+                    };
+                    fetch(api, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }), body: JSON.stringify(verificationUser) })
+                        .then(res => res.json())
+                        .then(res => {
+                            console.log('sent')
+                        }).catch(e => console.log(e));
+                    return;
+                }
                 setErrorMessage("");
+                registerForPushNotificationsAsync().then(token => {
+                    const api = `${apiStart}/Users/UpdateUserExpoToken/UserID/${user.id}/ExpoToken/${token}`;
+                    fetch(api, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) });
+                });
                 storeUser(user);
             }).catch((err) => console.log(err));
     };

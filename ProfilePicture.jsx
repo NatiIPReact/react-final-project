@@ -5,10 +5,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 function GetFirstLettersOfName(name) {
     let s = name.split(' ');
     let res = '';
+    let counter = 0;
     for (i in s) {
-        if (i > 2)
+        if (counter > 2)
             break;
-        res += s[i][0];
+        res += s[i][0] === undefined ? "" : s[i][0];
+        counter += s[i][0] === undefined;
     }
     return res;
 }

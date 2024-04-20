@@ -8,22 +8,26 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Linking } from 'react-native';
 import LyricsOverlay from './LyricsModal';
+import { usePlaylistsContext } from './Playlists';
+import { useLikedSongsContext } from './LikedSongs';
 
 const SongModal = ({ gapValue }) => {
     const { audioPlayer, setAudioPlayer, playPreviousTrack, playNextTrack, handlePlayPause, updateTrackIsInFav } = useContext(AudioPlayer);
     const [modalVisible, setModalVisible] = useState(false);
     const [addPlaylistModalVisible, setAddPlaylistModalVisible] = useState(false);
-    const [playlists, setPlaylists] = useState([]);
+    const {playlists, setPlaylists} = usePlaylistsContext();
     const [user, setUser] = useState(null);
     const [message, setMessage] = useState('');
     const navigation = useNavigation();
     const [showLyricsVisible, setShowLyricsVisible] = useState(false);
+    const {likedSongs, setLikedSongs} = useLikedSongsContext();
     const circleSize = 12;
     const getPlaylists = () => {
         const api = `${apiStart}/Playlists/GetUserPlaylists/UserID/${user?.id}`;
         fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             .then((res) => res.json())
             .then((res) => {
+                if (res != undefined && res.message != undefined && res.message.toLowerCase().includes('error')) return;
                 setPlaylists(res);
             }).catch((err) => console.log(err));
     };
@@ -57,6 +61,18 @@ const SongModal = ({ gapValue }) => {
             .then((res) => res.json())
             .then((res) => {
                 updateTrackIsInFav()
+                if (likedSongs.length <= 1) {
+                    setLikedSongs([]);
+                    return;
+                }
+                let tmp = [...likedSongs];
+                for (s in tmp) {
+                    if (tmp[s].songID === songID) {
+                        tmp.splice(s,1);
+                        break;
+                    }
+                }
+                setLikedSongs([...tmp])
             })
             .catch(e => console.log(e))
     };
@@ -66,6 +82,9 @@ const SongModal = ({ gapValue }) => {
             .then((res) => res.json())
             .then((res) => {
                 updateTrackIsInFav();
+                if (res?.songID === songID) {
+                    setLikedSongs([...likedSongs, res]);
+                }
             })
             .catch(e => console.log(e))
     };
@@ -82,6 +101,16 @@ const SongModal = ({ gapValue }) => {
             .then((res) => res.json())
             .then(res => {
                 setMessage(res.message)
+                if (res.message === "Success!") {
+                    let tmp = [...playlists];
+                    for (p of tmp) {
+                        if (p.id === playlistID) {
+                            p.numberOfSongs++;
+                            break;
+                        }
+                    }
+                    setPlaylists([...tmp]);
+                }
             }).catch((e) => console.log(e))
     };
 
@@ -161,9 +190,10 @@ const SongModal = ({ gapValue }) => {
                                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>{audioPlayer?.currentTrack?.songName}</Text>
                                     <Text style={{ marginTop: 4, color: '#D3D3D3' }}>{audioPlayer?.currentTrack?.performerName}</Text>
                                 </View>
+                                { (!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
                                 <View>
                                 {audioPlayer?.currentTrack?.isInFav == 1 ? <AntDesign onPress={() => deleteFromFavorites(audioPlayer?.currentTrack?.songID)} name="heart" size={24} color="#1DB954" />
-                                    : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}</View>
+                                    : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}</View>}
                             </View>
                             <View style={{ marginTop: 10 }}>
                                 <View style={{ width: '100%', marginTop: 10, height: 3, backgroundColor: 'gray', borderRadius: 5 }}>

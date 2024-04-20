@@ -4,18 +4,21 @@ import { GlobalStateProvider } from './components/user';
 import { ModalPortal } from 'react-native-modals';
 import { AudioPlayerContext } from './AudioPlayer';
 import { PlaylistsGlobalStateProvider } from './Playlists';
+import { LikedSongsGlobalStateProvider } from './LikedSongs';
 
 export default function App() {
   return (
     <>
-      <PlaylistsGlobalStateProvider>
-        <AudioPlayerContext>
-          <GlobalStateProvider>
-            <Navigation />
-            <ModalPortal />
-          </GlobalStateProvider>
-        </AudioPlayerContext>
-      </PlaylistsGlobalStateProvider>
+      <LikedSongsGlobalStateProvider>
+        <PlaylistsGlobalStateProvider>
+          <AudioPlayerContext>
+            <GlobalStateProvider>
+              <Navigation />
+              <ModalPortal />
+            </GlobalStateProvider>
+          </AudioPlayerContext>
+        </PlaylistsGlobalStateProvider>
+      </LikedSongsGlobalStateProvider>
     </>
   );
 }

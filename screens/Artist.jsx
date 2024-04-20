@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Pressable } from 'react-native'
+import { StyleSheet, Text, View, Image, Pressable, TextInput, TouchableOpacity } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -16,12 +16,20 @@ const Artist = () => {
     const [artistLengthMessage, setArtistLengthMessage] = useState('');
     const navigation = useNavigation();
     const { audioPlayer, setAudioPlayer, updateQueueAndPlay, shuffleQueue } = useContext(AudioPlayer);
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [followers, setFollowers] = useState(0);
+    const [comments, setComments] = useState([]);
+    const [commentInput, setCommentInput] = useState('');
+    const [commentErrorMessage, setCommentErrorMessage] = useState('');
+    const [commentTextInputBorderColor, setCommentTextInputBorderColor] = useState('transparent');
     useEffect(() => {
         async function fetchArtistSongs() {
             const api = `${apiStart}/Songs/GetPerformerSongs/PerformerID/${route?.params?.item?.performerID}/UserID/${user?.id}`;
             fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
                 .then((res) => res.json())
                 .then((res) => {
+                    if (res.length > 0)
+                        setIsFollowing(res[0]?.isUserFollowingArtist === 1 ? true : false);
                     setTracks(res);
                     let totalSeconds = 0;
                     for (song of res) {
@@ -35,7 +43,17 @@ const Artist = () => {
                 }).catch(e => console.log(e))
         }
         fetchArtistSongs();
+        getNumberOfFollowers();
+        getArtistComments();
     }, []);
+    const getNumberOfFollowers = () => {
+        const api = `${apiStart}/Performers/GetTotalFollowersOfPerformer/PerformerID/${route?.params?.item?.performerID}`;
+        fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then(res => res.json())
+            .then(res => {
+                setFollowers(res?.totalFollowers)
+            }).catch(e => console.log(e));
+    };
     const shufflePlay = () => {
         shuffleQueue(tracks);
     };
@@ -55,6 +73,64 @@ const Artist = () => {
             }
         }
     };
+    const followArtist = () => {
+        const api = `${apiStart}/Users/FollowArtist/UserID/${user?.id}/PerformerID/${route?.params?.item?.performerID}`;
+        fetch(api, { method: "POST", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then((res) => res.json())
+            .then((res) => {
+                setIsFollowing(true);
+                setFollowers(prevState => prevState + 1);
+            }).catch(e => console.log(e));
+    };
+    const unfollowArtist = () => {
+        const api = `${apiStart}/Users/UnfollowArtist/UserID/${user?.id}/PerformerID/${route?.params?.item?.performerID}`;
+        fetch(api, { method: "DELETE", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then((res) => res.json())
+            .then((res) => {
+                setIsFollowing(false);
+                setFollowers(prevState => prevState - 1);
+            }).catch(e => console.log(e));
+    };
+    const getArtistComments = () => {
+        const api = `${apiStart}/Comments/GetArtistsComments/PerformerID/${route?.params?.item?.performerID}`;
+        fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then(res => res.json())
+            .then(res => {
+                setComments(res);
+            }).catch(e => console.log(e));
+    };
+    const uploadComment = () => {
+        if (commentInput === "") {
+            setCommentTextInputBorderColor('red');
+            return;
+        }
+        setCommentTextInputBorderColor('transparent');
+        if (isFollowing === false) {
+            setCommentErrorMessage('Only followers can comment!');
+            return;
+        }
+        setCommentErrorMessage('');
+        const api = `${apiStart}/Comments`;
+        let commentToPost = {
+            "commentID": 0,
+            "userID": user?.id,
+            "performerID": route?.params?.item?.performerID,
+            "content": commentInput,
+            "userName": user?.name,
+            'date': (new Date()).toISOString(),
+            'userImage':''
+        };
+        fetch(api, { method: "POST", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }), body: JSON.stringify(commentToPost) })
+            .then(res => res.json())
+            .then(res => {
+                if (res != undefined && res.message != undefined && res.message === "Success") {
+                    commentToPost.userImage = user?.image;
+                    setComments([...comments, commentToPost]);
+                }
+            }).catch(e => console.log(e));
+    };
+    const images = ['https://bootdey.com/img/Content/user_1.jpg', 'https://bootdey.com/img/Content/user_2.jpg'
+    , 'https://bootdey.com/img/Content/user_3.jpg'];
     return (
         <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
             <ScrollView style={{ marginTop: 50 }}>
@@ -66,15 +142,16 @@ const Artist = () => {
                 </View>
                 <Text style={{ color: 'white', marginHorizontal: 12, marginTop: 10, fontSize: 25, fontWeight: 'bold' }}>{route?.params?.item?.performerName}</Text>
                 <View style={{ marginHorizontal: 12, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 10, gap: 7 }}>
-                    <Text style={{ color: '#909090', fontSize: 14, fontWeight: 'bold' }}>{artistLengthMessage}</Text>
+                    <Text style={{ color: '#909090', fontSize: 14, fontWeight: 'bold' }}>{artistLengthMessage} • {followers} Followers</Text>
                 </View>
                 <Pressable style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 10 }}>
-                    <Pressable style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: '#1DB954', justifyContent: 'center', alignItems: 'center' }}>
-                        <AntDesign name="arrowdown" size={20} color='white' />
+                    <Pressable style={{ backgroundColor: '#282828', padding: 10, borderRadius: 30 }} onPress={isFollowing ? unfollowArtist : followArtist}>
+                        <Text style={{ fontSize: 15, color: 'white' }}>{isFollowing ? 'Unfollow' : 'Follow'}</Text>
                     </Pressable>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                         <Pressable onPress={shufflePlay}>
-                            <Entypo name="shuffle" size={24} color="#1DB954" /></Pressable>
+                            <Entypo name="shuffle" size={24} color="#1DB954" />
+                        </Pressable>
                         <Pressable onPress={playSong}
                             style={{ width: 58, height: 58, borderRadius: 30, backgroundColor: '#1DB954', justifyContent: 'center', alignItems: 'center' }}>
                             <Entypo name="controller-play" size={24} color="white" />
@@ -100,6 +177,48 @@ const Artist = () => {
                         ))}
                     </View>
                 </View>
+                <View>
+                    <View style={{ marginTop: 10, marginHorizontal: 12 }}>
+                        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 20, marginBottom: 15 }}>Comments</Text>
+                        {comments?.map((comment, index) => (
+                            <View key={index} style={{ flex: 1, flexDirection: 'row', marginBottom: 10 }}>
+                                <Image source={{ uri: comment?.userImage == null ? images[Math.floor(Math.random() * images.length)] : `data:image/jpeg;base64,${comment?.userImage}` }}
+                                    style={{ width: 50, height: 50, borderRadius: 3, marginRight: 10 }} />
+                                <View>
+                                    <Text style={{ color: 'white', fontWeight: '500' }}>{comment?.date?.split('T')[0]}{" "}
+                                        {<Text style={{ color: '#3bc8e7', fontWeight: 'bold' }}>{comment?.userName}</Text>} says:</Text>
+                                    <Text style={{ color: 'white', fontWeight: '500' }}>{comment?.content}</Text>
+                                </View>
+                            </View>
+                        ))}
+                        {comments.length === 0 && <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>No comments yet.. be the first to comment!</Text>}
+                        <View style={{ marginTop: 10, alignItems: 'center' }}>
+                            <Text style={{ color: 'red', fontSize: 18, fontWeight: '500', marginBottom: 5 }}>{commentErrorMessage}</Text>
+                            <TextInput
+                                style={{
+                                    height: 50,
+                                    backgroundColor: 'white',
+                                    marginBottom: 20,
+                                    paddingHorizontal: 10,
+                                    borderRadius: 5,
+                                    width: '100%',
+                                    fontSize: 16,
+                                    borderWidth: 2,
+                                    borderColor: commentTextInputBorderColor
+                                }}
+                                placeholder="Add comment"
+                                placeholderTextColor="#003f5c"
+                                onChangeText={(newCommentInput) => setCommentInput(newCommentInput)}
+                                value={commentInput}
+                                autoCapitalize="none"
+                                autoCorrect={false} />
+                            <TouchableOpacity style={styles.loginButton} onPress={uploadComment}>
+                                <Text style={styles.buttonText}>Comment</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+                <View style={{ height: 15 }}></View>
             </ScrollView>
             <SongModal gapValue={25} />
         </LinearGradient>
@@ -108,4 +227,17 @@ const Artist = () => {
 
 export default Artist
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    loginButton: {
+        backgroundColor: '#007bff',
+        borderRadius: 5,
+        paddingVertical: 15,
+        alignItems: 'center',
+        width: '50%',
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+    }
+})

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image, Pressable } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useGlobalState } from '../components/user'
 import { apiStart } from '../api'
@@ -9,17 +9,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SongModal from '../SongModal'
 import { useNavigation } from '@react-navigation/native'
 import { usePlaylistsContext } from '../Playlists'
+import { AudioPlayer } from '../AudioPlayer'
 
 const ProfileScreen = () => {
   const { user, setUser } = useGlobalState();
   const navigation = useNavigation();
   //const [playlists, setPlaylists] = useState([]);
   const {playlists, setPlaylists} = usePlaylistsContext();
+  const { pauseSong } = useContext(AudioPlayer);
   useEffect(() => {
     const api = `${apiStart}/Playlists/GetUserPlaylists/UserID/${user.id}`;
     fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
       .then((res) => res.json())
       .then((res) => {
+        if (res != undefined && res.message != undefined && res.message.toLowerCase().includes('error')) return;
         setPlaylists(res);
       }).catch((err) => console.log(err));
   }, []);
@@ -27,6 +30,7 @@ const ProfileScreen = () => {
     'https://images.pexels.com/photos/3944091/pexels-photo-3944091.jpeg?auto=compress&cs=tinysrgb&w=800',
     'https://images.pexels.com/photos/3771842/pexels-photo-3771842.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'];
   const logout = async () => {
+    pauseSong();
     await AsyncStorage.removeItem('@user', () => { navigation.navigate("Login") });
   };
   return (
@@ -34,7 +38,7 @@ const ProfileScreen = () => {
       <ScrollView style={{ marginTop: 50 }}>
         <View style={{ padding: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          {(user !== undefined && user.image == null) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
+          {(user !== undefined && (user?.image == null || user?.image == "")) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
             <View>
               <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>{user?.name}</Text>
               <Text style={{ color: 'gray', fontSize: 16, fontWeight: 'bold' }}>Member since {user?.registrationDate.split('-')[0]}</Text>

@@ -25,6 +25,8 @@ import EditProfile from "./screens/EditProfile";
 import ContactUs from "./screens/ContactUs";
 import MessagesReport from "./screens/MessagesReport";
 import Additions from "./screens/Additions";
+import SendNotification from "./screens/SendNotification";
+import SpotifySignup from "./screens/SpotifySignup";
 
 const Tab = createBottomTabNavigator();
 
@@ -91,6 +93,8 @@ function Navigation() {
                 <Stack.Screen name="ContactUs" component={ContactUs} options={{headerShown:false}}/>
                 <Stack.Screen name="Messages" component={MessagesReport} options={{headerShown:false}}/>
                 <Stack.Screen name="Additions" component={Additions} options={{headerShown:false}}/>
+                <Stack.Screen name="SendNotification" component={SendNotification} options={{headerShown:false}}/>
+                <Stack.Screen name="SpotifySignup" component={SpotifySignup} options={{headerShown:false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

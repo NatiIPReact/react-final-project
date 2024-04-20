@@ -46,7 +46,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "Ruppinfy",
+    "scheme": "exp://localhost:8081/",
     "extra": {
       "eas": {
         "projectId": "8228ed38-4437-48e5-9f45-272ed7d86f87"

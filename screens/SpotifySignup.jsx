@@ -1,42 +1,17 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useState } from 'react'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { TextInput } from 'react-native';
-import { useNavigation } from "@react-navigation/native";
-import { apiStart } from '../api'
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiStart } from '../api';
 
-const Signup = () => {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
+const SpotifySignup = () => {
+    const route = useRoute();
+    const navigation = useNavigation();
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
-    const navigation = useNavigation();
-    const handleBackButtonPress = () => {
-        navigation.goBack();
-    };
-    /*
-    const storeUser = async (user) => {
-        try {
-            const userAsJSON = JSON.stringify(user);
-            await AsyncStorage.setItem('@user', userAsJSON, () => { navigation.navigate("Main") });
-        } catch (err) {
-            console.log(err);
-        }
-    }
-    */
     const Register = () => {
-        if (name === "") {
-            setErrorMessage("Enter name!");
-            return;
-        }
-        if (email === "") {
-            setErrorMessage("Enter email!");
-            return;
-        }
         if (password.length < 3) {
             setErrorMessage("Password must contain atleast 3 characters!");
             return;
@@ -44,13 +19,13 @@ const Signup = () => {
         const api = `${apiStart}/Users`;
         let user = {
             "id": 0,
-            "email": email,
-            "name": name,
+            "email": route.params.email,
+            "name": route.params.name,
             "password": password,
             "isVerified": false,
             "registrationDate": new Date(),
             "isBanned": false,
-            'image':""
+            'image':''
         };
         fetch(api, { method: "POST", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }), body:JSON.stringify(user) })
             .then((res) => {
@@ -60,46 +35,26 @@ const Signup = () => {
                     setErrorMessage(res.message);
                     return;
                 }
-                setSuccessMessage('Welcome. Please verify your email to login.')
+                setSuccessMessage("Welcome. Please verify your email to login.");
                 setErrorMessage('');
-                //const userAsJSON = JSON.stringify(user);
-                //AsyncStorage.setItem('@user', userAsJSON, () => { navigation.navigate("Main") });
+                //storeUser(user);
             }).catch((err) => console.log(err));
     };
     return (
         <LinearGradient colors={['#040306', '#131624']} style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={handleBackButtonPress} style={[styles.backButton, { zIndex: 10 }]}>
+                    <TouchableOpacity onPress={()=>navigation.goBack()} style={[styles.backButton, { zIndex: 10 }]}>
                         <Ionicons name="chevron-back" size={24} color="white" />
                     </TouchableOpacity>
                     <Text style={styles.loginText}>Sign up</Text>
                 </View>
                 <View style={styles.contentContainer}>
                     <View style={styles.inputContainer}>
+                        <Text style={{color:'white',marginBottom:20,fontSize:25,fontWeight:'bold'}}>Welcome, {route.params.name}</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Name"
-                            placeholderTextColor="#003f5c"
-                            onChangeText={(newName) => setName(newName)}
-                            value={name}
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Email"
-                            placeholderTextColor="#003f5c"
-                            onChangeText={(newEmail) => setEmail(newEmail)}
-                            value={email}
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Password"
+                            placeholder="Choose a Password"
                             placeholderTextColor="#003f5c"
                             onChangeText={(newPassword) => setPassword(newPassword)}
                             value={password}
@@ -116,10 +71,10 @@ const Signup = () => {
                 </View>
             </SafeAreaView>
         </LinearGradient>
-    );
+    )
 }
 
-export default Signup
+export default SpotifySignup
 
 const styles = StyleSheet.create({
     container: {

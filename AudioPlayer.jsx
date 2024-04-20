@@ -138,6 +138,12 @@ const AudioPlayerContext = ({children}) => {
             setAudioPlayer(prevState => ({...prevState, isPlaying:!audioPlayer.isPlaying}))
         }
     };
+    const pauseSong = async () => {
+        if (audioPlayer.currentSound && audioPlayer.isPlaying) {
+            await audioPlayer.currentSound.pauseAsync();
+            setAudioPlayer(prevState => ({...prevState, isPlaying:false}))
+        }
+    };
     function shuffleQueue(queue = null) {
         var array = JSON.parse(JSON.stringify(queue == null ? audioPlayer.songQueue : queue));
         let currentIndex = array.length;
@@ -218,6 +224,6 @@ const AudioPlayerContext = ({children}) => {
             await updateQueueAndPlay(audioPlayer.songQueue[tmp].songID, audioPlayer.songQueue, tmp);
         }
     }
-    return (<AudioPlayer.Provider value={{audioPlayer, updateTrackIsInFav,playRadioStation,setAudioPlayer,playPreviousTrack,playNextTrack,handlePlayPause,updateQueueAndPlay,shuffleQueue}}>{children}</AudioPlayer.Provider>)
+    return (<AudioPlayer.Provider value={{audioPlayer, pauseSong,updateTrackIsInFav,playRadioStation,setAudioPlayer,playPreviousTrack,playNextTrack,handlePlayPause,updateQueueAndPlay,shuffleQueue}}>{children}</AudioPlayer.Provider>)
 }
 export {AudioPlayerContext,AudioPlayer}

@@ -14,6 +14,8 @@ import SongModal from '../SongModal'
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'
 import { AudioPlayer } from '../AudioPlayer'
 import { usePlaylistsContext } from '../Playlists'
+import registerForPushNotificationsAsync from '../NotificationComponent'
+import { useLikedSongsContext } from '../LikedSongs'
 
 const HomeScreen = () => {
     const [featuredSongs, setFeaturedSongs] = useState([]);
@@ -23,6 +25,7 @@ const HomeScreen = () => {
     const [message, setMessage] = useState('');
     const navigation = useNavigation();
     const {playlists, setPlaylists} = usePlaylistsContext();
+    const {likedSongs, setLikedSongs} = useLikedSongsContext();
     //const [playlists, setPlaylists] = useState([]);
     const getUser = async () => {
         try {
@@ -50,6 +53,23 @@ const HomeScreen = () => {
                 setTopArtists(res);
             }).catch((err) => console.log(err));
     }
+    async function getLikedSongs() {
+        const api = `${apiStart}/Users/GetUserFavorites/UserID/${user.id}`;
+        fetch(api, { method: 'GET', headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+          .then((res) => res.json())
+          .then((songs) => {
+            setLikedSongs(songs);
+            let totalSeconds = 0;
+            for (song of songs) {
+              const tmp = song.length.split(':');
+              totalSeconds += parseInt(tmp[0]) * 60 + parseInt(tmp[1]);
+            }
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const formattedTotal = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            setTotalTime(formattedTotal);
+          }).catch((e) => console.log(e));
+      }
     useEffect(() => {
         getUser();
     }, []);
@@ -59,6 +79,8 @@ const HomeScreen = () => {
             getFeaturedSongs();
             getTopArtists();
             getPlaylists();
+            registerForPushNotificationsAsync();
+            getLikedSongs();
         }
     }, [user]);
     const greetingMessage = () => {
@@ -74,6 +96,7 @@ const HomeScreen = () => {
         fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             .then((res) => res.json())
             .then((res) => {
+                if (res != undefined && res.message != undefined && res.message.toLowerCase().includes('error')) return;
                 setPlaylists(res);
             }).catch((err) => console.log(err));
     };
@@ -85,7 +108,7 @@ const HomeScreen = () => {
             <ScrollView style={{ marginTop: 50 }}>
                 <View style={{ padding: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        {(user !== undefined && user?.image == null) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user?.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
+                        {(user !== undefined && (user?.image == null || user?.image == "")) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user?.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
                         <Text style={{ marginLeft: 10, fontSize: 20, fontWeight: 'bold', color: 'white' }}>{message}</Text>
                     </View>
                 </View>

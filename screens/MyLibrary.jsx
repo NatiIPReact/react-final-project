@@ -8,21 +8,23 @@ import { AntDesign, Ionicons, FontAwesome } from '@expo/vector-icons';
 import ProfilePicture from '../ProfilePicture';
 import SongModal from '../SongModal';
 import { usePlaylistsContext } from '../Playlists';
+import { useLikedSongsContext } from '../LikedSongs';
 
 const MyLibrary = () => {
   const navigation = useNavigation();
   const { user, setUser } = useGlobalState();
-  const {playlists, setPlaylists} = usePlaylistsContext();
-  //const [playlists, setPlaylists] = useState([]);
-  const [numberOfLikedSongs, setNumberOfLikedSongs] = useState(0);
+  const { playlists, setPlaylists } = usePlaylistsContext();
+  //const [numberOfLikedSongs, setNumberOfLikedSongs] = useState(0);
   const [playlistName, setPlaylistName] = useState('');
   const [addPlaylistModalVisible, setAddPlaylistModalVisible] = useState(false);
   const [modalBorderColor, setModalBorderColor] = useState('gray');
+  const {likedSongs, setLikedSongs} = useLikedSongsContext();
   const getPlaylists = () => {
     const api = `${apiStart}/Playlists/GetUserPlaylists/UserID/${user.id}`;
     fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
       .then((res) => res.json())
       .then((res) => {
+        if (res != undefined && res.message != undefined && res.message.toLowerCase().includes('error')) return;
         setPlaylists(res);
       }).catch((err) => console.log(err));
   };
@@ -36,7 +38,8 @@ const MyLibrary = () => {
   };
   useEffect(() => {
     getPlaylists();
-    getNumberOfLikedSongs();
+    //getNumberOfLikedSongs();
+    //getLikedSongs();
   }, []);
   const addPlaylist = () => {
     setAddPlaylistModalVisible(true);
@@ -60,7 +63,7 @@ const MyLibrary = () => {
       .then(res => {
         setAddPlaylistModalVisible(false);
         let item = { id: res.playlistID, name: playlistName, numberOfSongs: 0 }
-        setPlaylists([...playlists,item]);
+        setPlaylists([...playlists, item]);
         navigation.navigate('Playlist', {
           item: item,
           playlistImage: playlistsImages[Math.floor(Math.random() * playlistsImages.length)]
@@ -72,24 +75,24 @@ const MyLibrary = () => {
   const deletePlaylist = (playlistToDelete) => {
     const api = `${apiStart}/Playlists/DeleteUserPlaylist/PlaylistID/${playlistToDelete.id}/UserID/${user.id}`;
     fetch(api, { method: "DELETE", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
-    .then((res) => res.json())
-    .then(res => {
-      let tmp = [...playlists];
-      for (i in tmp) {
-        if (tmp[i].id === playlistToDelete.id) {
-          tmp.splice(i,1)
-          break;
+      .then((res) => res.json())
+      .then(res => {
+        let tmp = [...playlists];
+        for (i in tmp) {
+          if (tmp[i].id === playlistToDelete.id) {
+            tmp.splice(i, 1)
+            break;
+          }
         }
-      }
-      setPlaylists([...tmp]);
-    }).catch(e => console.log(e));
+        setPlaylists([...tmp]);
+      }).catch(e => console.log(e));
   };
   return (
     <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
       <ScrollView style={{ marginTop: 50 }}>
         <View style={{ padding: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          {(user !== undefined && user.image == null) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
+            {(user !== undefined && (user?.image == null || user?.image == "")) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user.image}` }} style={{ width: 65, height: 65, borderRadius: 50 }} />}
             <Text style={{ marginLeft: 10, fontSize: 20, fontWeight: 'bold', color: 'white' }}>Your Library</Text>
           </View>
           <Pressable onPress={addPlaylist}>
@@ -103,26 +106,26 @@ const MyLibrary = () => {
               <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>Liked Songs</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <AntDesign name="pushpin" size={18} color="green" />
-                <Text style={{ color: 'white', marginTop: 7 }}>{numberOfLikedSongs} Songs</Text>
+                <Text style={{ color: 'white', marginTop: 7 }}>{likedSongs?.length || 0} Songs</Text>
               </View>
             </View>
           </Pressable>
           {playlists.map((item, index) => (
-              <Pressable key={item?.id} onPress={() => navigation.navigate('Playlist', {
-                item: item,
-                playlistImage: playlistsImages[index % playlistsImages.length]
-              })} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 10, justifyContent: 'space-between' }}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: playlistsImages[index % playlistsImages.length] }} />
-                  <View style={{marginLeft:10}}>
-                    <Text style={{ color: 'white' }}>{item?.name}</Text>
-                    <Text style={{ color: 'white', marginTop: 7 }}>{item?.numberOfSongs} Songs</Text>
-                  </View>
+            <Pressable key={item?.id} onPress={() => navigation.navigate('Playlist', {
+              item: item,
+              playlistImage: playlistsImages[index % playlistsImages.length]
+            })} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 10, justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: playlistsImages[index % playlistsImages.length] }} />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={{ color: 'white' }}>{item?.name}</Text>
+                  <Text style={{ color: 'white', marginTop: 7 }}>{item?.numberOfSongs} Songs</Text>
                 </View>
-                <Pressable onPress={()=>deletePlaylist(item)}>
-                  <FontAwesome name='remove' size={24} color="white" />
-                </Pressable>
+              </View>
+              <Pressable onPress={() => deletePlaylist(item)}>
+                <FontAwesome name='remove' size={24} color="white" />
               </Pressable>
+            </Pressable>
           ))}
         </View>
       </ScrollView>

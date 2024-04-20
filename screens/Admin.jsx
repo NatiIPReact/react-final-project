@@ -39,6 +39,9 @@ const Admin = () => {
                         <TouchableOpacity style={styles.loginButton} onPress={()=>navigation.navigate('Messages')}>
                             <Text style={styles.buttonText}>Messages</Text>
                         </TouchableOpacity>
+                        <TouchableOpacity style={styles.loginButton} onPress={()=>navigation.navigate('SendNotification')}>
+                            <Text style={styles.buttonText}>Send Notification</Text>
+                        </TouchableOpacity>
                     </View>
                 </ScrollView>
             </SafeAreaView>

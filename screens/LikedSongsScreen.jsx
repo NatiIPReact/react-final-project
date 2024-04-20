@@ -11,14 +11,16 @@ import SongItem from '../components/SongItem';
 import { AudioPlayer } from '../AudioPlayer';
 import { debounce } from 'lodash';
 import SongModal from '../SongModal';
+import { useLikedSongsContext } from '../LikedSongs';
 
 const LikedSongsScreen = () => {
     const { audioPlayer, setAudioPlayer, updateQueueAndPlay, shuffleQueue, updateTrackIsInFav } = useContext(AudioPlayer);
     const [searchedTracks, setSearchedTracks] = useState([]);
     const navigation = useNavigation();
     const [input, setInput] = useState('');
-    const [likedSongs, setLikedSongs] = useState([]);
-    const [currentLikedSongs, setCurrentLikedSongs] = useState([]);
+    //const [likedSongs, setLikedSongs] = useState([]);
+    const {likedSongs, setLikedSongs} = useLikedSongsContext();
+    //const [currentLikedSongs, setCurrentLikedSongs] = useState([]);
     const [totalTime, setTotalTime] = useState('00:00');
     const value = useRef(0);
     const { user, setUser } = useGlobalState();
@@ -43,7 +45,7 @@ const LikedSongsScreen = () => {
     }
     useEffect(() => {
         if (user) {
-            getLikedSongs();
+            //getLikedSongs();
         }
     }, [user]);
     const deleteFromFavorites = (songID) => {
@@ -53,6 +55,11 @@ const LikedSongsScreen = () => {
             .then((res) => {
                 if (songID === audioPlayer?.currentTrack?.songID)
                     updateTrackIsInFav()
+                if (likedSongs.length === 1) {
+                    setLikedSongs([]);
+                    setSearchedTracks([]);
+                    return;
+                }
                 let tmp = [...likedSongs];
                 for (i in tmp) {
                     if (tmp[i]?.songID === songID) {
@@ -79,6 +86,9 @@ const LikedSongsScreen = () => {
         }
     }, [likedSongs]);
     const playSong = (songID = 0, ind = -1) => {
+        if (likedSongs.length === 0) {
+            return;
+        }
         if (ind === -1) {
             updateQueueAndPlay(likedSongs[0].songID, likedSongs, 0);
             return;
@@ -95,6 +105,9 @@ const LikedSongsScreen = () => {
         }
     };
     const shufflePlay = () => {
+        if (likedSongs.length === 0) {
+            return;
+        }
         shuffleQueue(likedSongs);
     };
     const convertTimeToSeconds = (timeString) => {
