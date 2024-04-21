@@ -19,7 +19,7 @@ const LikedSongsScreen = () => {
     const navigation = useNavigation();
     const [input, setInput] = useState('');
     //const [likedSongs, setLikedSongs] = useState([]);
-    const {likedSongs, setLikedSongs} = useLikedSongsContext();
+    const { likedSongs, setLikedSongs } = useLikedSongsContext();
     //const [currentLikedSongs, setCurrentLikedSongs] = useState([]);
     const [totalTime, setTotalTime] = useState('00:00');
     const value = useRef(0);
@@ -32,6 +32,7 @@ const LikedSongsScreen = () => {
             .then((res) => res.json())
             .then((songs) => {
                 setLikedSongs(songs);
+                /*
                 let totalSeconds = 0;
                 for (song of songs) {
                     const tmp = song.length.split(':');
@@ -40,12 +41,24 @@ const LikedSongsScreen = () => {
                 const minutes = Math.floor(totalSeconds / 60);
                 const seconds = totalSeconds % 60;
                 const formattedTotal = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                setTotalTime(formattedTotal);
+                setTotalTime(formattedTotal); */
             }).catch((e) => console.log(e));
     }
+    const calculateTotalTime = () => {
+        let totalSeconds = 0;
+        for (song of likedSongs) {
+            const tmp = song.length.split(':');
+            totalSeconds += parseInt(tmp[0]) * 60 + parseInt(tmp[1]);
+        }
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const formattedTotal = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        setTotalTime(formattedTotal);
+    };
     useEffect(() => {
         if (user) {
             //getLikedSongs();
+            calculateTotalTime();
         }
     }, [user]);
     const deleteFromFavorites = (songID) => {

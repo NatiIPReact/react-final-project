@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Pressable, TextInput, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Image, Pressable, TextInput, TouchableOpacity, Linking } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -22,6 +22,7 @@ const Artist = () => {
     const [commentInput, setCommentInput] = useState('');
     const [commentErrorMessage, setCommentErrorMessage] = useState('');
     const [commentTextInputBorderColor, setCommentTextInputBorderColor] = useState('transparent');
+    const [concerts, setConcerts] = useState([]);
     useEffect(() => {
         async function fetchArtistSongs() {
             const api = `${apiStart}/Songs/GetPerformerSongs/PerformerID/${route?.params?.item?.performerID}/UserID/${user?.id}`;
@@ -45,7 +46,28 @@ const Artist = () => {
         fetchArtistSongs();
         getNumberOfFollowers();
         getArtistComments();
+        getArtistConcerts();
     }, []);
+    const getArtistConcerts = () => {
+        fetch(`https://app.ticketmaster.com/discovery/v2/events.json?keyword=${route?.params?.item?.performerName}&apikey=sGS4leVOIAuCcazajk6HxuSuvPhcaoCu`,
+            { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then(res => res.json())
+            .then(res => {
+                let tmp = [];
+                if (res != undefined && undefined != res._embedded && res._embedded.events != undefined) {
+                    for (e of res._embedded.events) {
+                        tmp.push({
+                            name: e.name,
+                            date: e.dates.start.localTime,
+                            location: `${e._embedded.venues[0].country.name}, ${e._embedded.venues[0].city.name}`,
+                            genre: e.classifications[0].genre.name,
+                            url: e.url
+                        });
+                    }
+                    setConcerts([...tmp]);
+                }
+            }).catch(e => console.log(e))
+    };
     const getNumberOfFollowers = () => {
         const api = `${apiStart}/Performers/GetTotalFollowersOfPerformer/PerformerID/${route?.params?.item?.performerID}`;
         fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
@@ -118,7 +140,7 @@ const Artist = () => {
             "content": commentInput,
             "userName": user?.name,
             'date': (new Date()).toISOString(),
-            'userImage':''
+            'userImage': ''
         };
         fetch(api, { method: "POST", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }), body: JSON.stringify(commentToPost) })
             .then(res => res.json())
@@ -129,8 +151,13 @@ const Artist = () => {
                 }
             }).catch(e => console.log(e));
     };
+    const buyConcertTickets = (index) => {
+        if (concerts.length > index && index >= 0) {
+            Linking.openURL(concerts[index]?.url);
+        }
+    };
     const images = ['https://bootdey.com/img/Content/user_1.jpg', 'https://bootdey.com/img/Content/user_2.jpg'
-    , 'https://bootdey.com/img/Content/user_3.jpg'];
+        , 'https://bootdey.com/img/Content/user_3.jpg'];
     return (
         <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
             <ScrollView style={{ marginTop: 50 }}>
@@ -218,7 +245,27 @@ const Artist = () => {
                         </View>
                     </View>
                 </View>
-                <View style={{ height: 15 }}></View>
+                <View>
+                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25, marginBottom: 15, marginTop: 10, marginLeft:10 }}>Related Concerts</Text>
+                    {concerts?.map((concert, index) => (
+                        <View key={index} style={{ flex: 1, marginBottom: 10, marginLeft:13 }}>
+                            <View>
+                                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 15 }}>{index + 1}. {concert?.name}</Text>
+                                <Text style={{ color: 'white', fontWeight: '500' }}>{concert?.location} @ {concert?.date}</Text>
+                                <Text style={{ color: 'white', fontWeight: '500' }}>Genre: {concert?.genre}</Text>
+                            </View>
+                            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                                <Pressable style={{
+                                    backgroundColor: '#6247aa', borderRadius: 5, paddingVertical: 10,
+                                    alignItems: 'center', width: '40%'
+                                }} onPress={()=>buyConcertTickets(index)}>
+                                    <Text style={{ color: 'white', fontWeight: 'bold' }}>Buy Tickets</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    ))}
+                </View>
+                <View style={{ height: (audioPlayer?.currentTrack == null) ? 15 : 100 }}></View>
             </ScrollView>
             <SongModal gapValue={25} />
         </LinearGradient>

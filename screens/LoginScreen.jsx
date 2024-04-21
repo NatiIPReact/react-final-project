@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Entypo, MaterialCommunityIcons, AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import * as WebBrowser from "expo-web-browser";
-import * as Google from 'expo-auth-session/providers/google';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import { Buffer } from 'buffer';
@@ -21,13 +19,8 @@ const spotifyClient_secret = `e7866f59b4364e709cde7ffa897cf25a`;
 const LoginScreen = () => {
     const navigation = useNavigation();
     const [userInfo, setUserInfo] = useState(null);
-    const [googleAvailble, setGoogleAvailble] = useState(true);
     const [accessToken, setAccessToken] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
-    const [request, response, promptAsync] = Google.useAuthRequest({
-        iosClientId: '578240915619-2sph5cos2p09g63e252818q52c23e2ev.apps.googleusercontent.com',
-        webClientId: '578240915619-306oldrb57q89cd6cj8g1ia7mnt8nbgo.apps.googleusercontent.com'
-    });
     const [requestSpotify, responseSpotify, promptAsyncSpotify] = useAuthRequest(
         {
             clientId: '46f746d8a9bd4ee68095e27d1a0b154c',
@@ -114,31 +107,6 @@ const LoginScreen = () => {
                 }).catch(e => console.log(e))
         }
     }, [spotifyAccount])
-    useEffect(() => { handleGoogleSignin() }, [response])
-    async function handleGoogleSignin() {
-        const user = await AsyncStorage.getItem('@user');
-        if (!user) {
-            if (response?.type === "success") {
-                await getUserInfo(response.authentication.accessToken);
-            }
-        } else {
-            setUserInfo(JSON.parse(user));
-        }
-    }
-    const getUserInfo = async (token) => {
-        if (!token) return;
-        try {
-            const response = await fetch('https://www.googleapis.com/userinfo/v2/me',
-                {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
-            const user = await response.json();
-            await AsyncStorage.setItem('@user', JSON.stringify(user));
-            setUserInfo(user);
-        } catch (error) {
-            console.log(error)
-        }
-    };
     function Login() {
         navigation.navigate("EmailLogin")
     };
@@ -174,26 +142,6 @@ const LoginScreen = () => {
                     justifyContent: "center"
                 }}>
                     <Text>Sign In</Text>
-                </Pressable>
-                <Pressable onPress={() => promptAsync()}
-                    style={{
-                        backgroundColor: "#131624",
-                        padding: 10,
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        width: 300,
-                        borderRadius: 25,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginVertical: 10,
-                        borderColor: "#C0C0C0",
-                        borderWidth: 0.8
-                    }}
-                >
-                    <AntDesign name="google" size={24} color="#DB4437" />
-                    <Text style={{ fontWeight: "500", color: "white", textAlign: "center", flex: 1 }}>Sign In with Google</Text>
                 </Pressable>
                 <Pressable onPress={() => promptAsyncSpotify()}
                     style={{

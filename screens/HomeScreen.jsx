@@ -59,15 +59,6 @@ const HomeScreen = () => {
           .then((res) => res.json())
           .then((songs) => {
             setLikedSongs(songs);
-            let totalSeconds = 0;
-            for (song of songs) {
-              const tmp = song.length.split(':');
-              totalSeconds += parseInt(tmp[0]) * 60 + parseInt(tmp[1]);
-            }
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            const formattedTotal = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            setTotalTime(formattedTotal);
           }).catch((e) => console.log(e));
       }
     useEffect(() => {
