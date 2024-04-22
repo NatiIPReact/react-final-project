@@ -250,8 +250,8 @@ const SongModal = ({ gapValue }) => {
                         </View>
                     </View>
                 </ModalContent>
-                {showLyricsVisible && <LyricsOverlay song={audioPlayer.currentTrack} hideLyricsModal={hideLyricsModal}/>}
             </BottomModal>
+                {showLyricsVisible && <LyricsOverlay song={audioPlayer.currentTrack} hideLyricsModal={hideLyricsModal}/>}
             {addPlaylistModalVisible === true && (
                 <View style={{ flex: 1 }}>
                     <Modal

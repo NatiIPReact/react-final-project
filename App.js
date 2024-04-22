@@ -5,20 +5,23 @@ import { ModalPortal } from 'react-native-modals';
 import { AudioPlayerContext } from './AudioPlayer';
 import { PlaylistsGlobalStateProvider } from './Playlists';
 import { LikedSongsGlobalStateProvider } from './LikedSongs';
+import { XPGlobalStateProvider } from './xp';
 
 export default function App() {
   return (
     <>
-      <LikedSongsGlobalStateProvider>
-        <PlaylistsGlobalStateProvider>
-          <AudioPlayerContext>
-            <GlobalStateProvider>
-              <Navigation />
-              <ModalPortal />
-            </GlobalStateProvider>
-          </AudioPlayerContext>
-        </PlaylistsGlobalStateProvider>
-      </LikedSongsGlobalStateProvider>
+      <XPGlobalStateProvider>
+        <LikedSongsGlobalStateProvider>
+          <PlaylistsGlobalStateProvider>
+            <AudioPlayerContext>
+              <GlobalStateProvider>
+                <Navigation />
+                <ModalPortal />
+              </GlobalStateProvider>
+            </AudioPlayerContext>
+          </PlaylistsGlobalStateProvider>
+        </LikedSongsGlobalStateProvider>
+      </XPGlobalStateProvider>
     </>
   );
 }

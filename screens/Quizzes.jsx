@@ -7,6 +7,7 @@ import { TouchableOpacity } from 'react-native';
 import { apiStart } from '../api';
 import { useGlobalState } from '../components/user';
 import SongModal from '../SongModal';
+import { useXPContext } from '../xp';
 
 const Quizzes = () => {
     const quizImages = ['https://images.pexels.com/photos/1670977/pexels-photo-1670977.jpeg',
@@ -15,6 +16,7 @@ const Quizzes = () => {
     const navigation = useNavigation();
     const { user, setUser } = useGlobalState();
     const [quizzesList, setQuizzesList] = useState([]);
+    const { xp, setXP } = useXPContext();
     const getQuizzes = () => {
         const api = `${apiStart}/Quizs/GetUserPastQuizzesWithoutQuestions/UserID/${user.id}`;
         fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
@@ -43,6 +45,8 @@ const Quizzes = () => {
                         <Text style={styles.buttonText}>Play Quiz</Text>
                     </TouchableOpacity>
                 </View>
+                <Text style={{color:'white',textAlign:'center',fontSize:20}}>Level {Math.floor(xp / 100) + 1}</Text>
+                <Text style={{color:'white',textAlign:'center',fontSize:20}}>You need <Text style={{color:'red'}}>{100 - (xp % 100)} XP</Text> to reach level {Math.floor(xp / 100) + 2}</Text>
                 <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold', textAlign: 'center' }}>Quiz History</Text>
             <ScrollView>
                 <View style={{ padding: 15 }}>

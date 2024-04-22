@@ -11,17 +11,19 @@ import { useNavigation } from "@react-navigation/native";
 import { useGlobalState } from '../components/user'
 import ProfilePicture from '../ProfilePicture'
 import SongModal from '../SongModal'
-import { AntDesign, MaterialIcons } from '@expo/vector-icons'
+import { AntDesign, MaterialIcons, Entypo } from '@expo/vector-icons'
 import { AudioPlayer } from '../AudioPlayer'
 import { usePlaylistsContext } from '../Playlists'
 import registerForPushNotificationsAsync from '../NotificationComponent'
 import { useLikedSongsContext } from '../LikedSongs'
+import {useXPContext} from '../xp'
 
 const HomeScreen = () => {
     const [featuredSongs, setFeaturedSongs] = useState([]);
     const [topArtists, setTopArtists] = useState([]);
     const { audioPlayer, setAudioPlayer, playRadioStation } = useContext(AudioPlayer);
     const { user, setUser } = useGlobalState();
+    const { xp, setXP } = useXPContext();
     const [message, setMessage] = useState('');
     const navigation = useNavigation();
     const {playlists, setPlaylists} = usePlaylistsContext();
@@ -61,6 +63,16 @@ const HomeScreen = () => {
             setLikedSongs(songs);
           }).catch((e) => console.log(e));
       }
+      const getUserXP = () => {
+        const api = `${apiStart}/Users/GetUserXP/UserID/${user?.id}`;
+        fetch(api, { method: 'GET', headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+        .then((res) => res.json())
+        .then(res => {
+            if (res != undefined && res.userXP != undefined) {
+                setXP(res.userXP)
+            }
+        }).catch((e) => console.log(e));
+      };
     useEffect(() => {
         getUser();
     }, []);
@@ -72,6 +84,7 @@ const HomeScreen = () => {
             getPlaylists();
             registerForPushNotificationsAsync();
             getLikedSongs();
+            getUserXP();
         }
     }, [user]);
     const greetingMessage = () => {
@@ -121,6 +134,26 @@ const HomeScreen = () => {
                         </LinearGradient>
                         <View>
                             <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 13 }}>Quizzes</Text>
+                        </View>
+                    </Pressable>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Pressable onPress={() => navigation.navigate('Chat')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
+                        <LinearGradient colors={['gray', '#FFFFFF']}>
+                            <Pressable onPress={()=>navigation.navigate('Chat')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
+                                <Entypo name='chat' size={24} color='white' />
+                            </Pressable>
+                        </LinearGradient>
+                        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 13 }}>Join Chat</Text>
+                    </Pressable>
+                    <Pressable onPress={() => navigation.navigate('Leaderboard')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
+                        <LinearGradient colors={['#dc7576', '#FFFFFF']}>
+                            <Pressable onPress={() => navigation.navigate('Leaderboard')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
+                                <MaterialIcons name='leaderboard' size={24} color='white' />
+                            </Pressable>
+                        </LinearGradient>
+                        <View>
+                            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 13 }}>Leaderboard</Text>
                         </View>
                     </Pressable>
                 </View>

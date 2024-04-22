@@ -10,6 +10,7 @@ import SongModal from '../SongModal'
 import { useNavigation } from '@react-navigation/native'
 import { usePlaylistsContext } from '../Playlists'
 import { AudioPlayer } from '../AudioPlayer'
+import { useXPContext } from '../xp'
 
 const ProfileScreen = () => {
   const { user, setUser } = useGlobalState();
@@ -17,6 +18,7 @@ const ProfileScreen = () => {
   //const [playlists, setPlaylists] = useState([]);
   const {playlists, setPlaylists} = usePlaylistsContext();
   const { pauseSong } = useContext(AudioPlayer);
+  const { xp, setXP } = useXPContext();
   useEffect(() => {
     const api = `${apiStart}/Playlists/GetUserPlaylists/UserID/${user.id}`;
     fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
@@ -41,7 +43,7 @@ const ProfileScreen = () => {
           {(user !== undefined && (user?.image == null || user?.image == "")) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
             <View>
               <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>{user?.name}</Text>
-              <Text style={{ color: 'gray', fontSize: 16, fontWeight: 'bold' }}>Member since {user?.registrationDate.split('-')[0]}</Text>
+              <Text style={{ color: 'gray', fontSize: 16, fontWeight: 'bold' }}>Member since {user?.registrationDate.split('-')[0]} • Level {Math.floor(xp / 100) + 1}</Text>
             </View>
           </View>
         </View>

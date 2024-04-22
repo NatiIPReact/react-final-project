@@ -8,6 +8,7 @@ import { apiStart } from '../api';
 import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import { useGlobalState } from '../components/user';
 import SongModal from '../SongModal';
+import { Button } from '@rneui/themed';
 
 const Artist = () => {
     const { user, setUser } = useGlobalState();
@@ -246,21 +247,25 @@ const Artist = () => {
                     </View>
                 </View>
                 <View>
-                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25, marginBottom: 15, marginTop: 10, marginLeft:10 }}>Related Concerts</Text>
+                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25, marginBottom: 15, marginTop: 10, marginLeft: 10 }}>Related Concerts</Text>
                     {concerts?.map((concert, index) => (
-                        <View key={index} style={{ flex: 1, marginBottom: 10, marginLeft:13 }}>
+                        <View key={index} style={{ flex: 1, marginBottom: 10, marginLeft: 13 }}>
                             <View>
                                 <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 15 }}>{index + 1}. {concert?.name}</Text>
                                 <Text style={{ color: 'white', fontWeight: '500' }}>{concert?.location} @ {concert?.date}</Text>
                                 <Text style={{ color: 'white', fontWeight: '500' }}>Genre: {concert?.genre}</Text>
                             </View>
-                            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-                                <Pressable style={{
-                                    backgroundColor: '#6247aa', borderRadius: 5, paddingVertical: 10,
-                                    alignItems: 'center', width: '40%'
-                                }} onPress={()=>buyConcertTickets(index)}>
-                                    <Text style={{ color: 'white', fontWeight: 'bold' }}>Buy Tickets</Text>
-                                </Pressable>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                                <Button onPress={() => buyConcertTickets(index)}
+                                    ViewComponent={LinearGradient} // Don't forget this!
+                                    linearGradientProps={{
+                                        colors: ["#FF9800", "#F44336"],
+                                        start: { x: 0, y: 0.5 },
+                                        end: { x: 1, y: 0.5 },
+                                    }} radius={4}
+                                >
+                                    Buy Tickets
+                                </Button>
                             </View>
                         </View>
                     ))}

@@ -27,6 +27,8 @@ import MessagesReport from "./screens/MessagesReport";
 import Additions from "./screens/Additions";
 import SendNotification from "./screens/SendNotification";
 import SpotifySignup from "./screens/SpotifySignup";
+import Chat from "./screens/Chat";
+import Leaderboard from "./screens/Leaderboard";
 
 const Tab = createBottomTabNavigator();
 
@@ -95,6 +97,8 @@ function Navigation() {
                 <Stack.Screen name="Additions" component={Additions} options={{headerShown:false}}/>
                 <Stack.Screen name="SendNotification" component={SendNotification} options={{headerShown:false}}/>
                 <Stack.Screen name="SpotifySignup" component={SpotifySignup} options={{headerShown:false}}/>
+                <Stack.Screen name="Chat" component={Chat} options={{headerShown:false}}/>
+                <Stack.Screen name="Leaderboard" component={Leaderboard} options={{headerShown:false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )
