@@ -9,9 +9,11 @@ import { useGlobalState } from '../components/user';
 import { apiStart } from '../api';
 import { AudioPlayer } from '../AudioPlayer';
 import SongModal from '../SongModal';
+import { useRecommendedContext } from '../Recommended';
 
 const Search = () => {
     const [input, setInput] = useState('');
+    const { recommended, setRecommended } = useRecommendedContext();
     const navigation = useNavigation();
     const { user, setUser } = useGlobalState();
     const [queryResult, setQueryResult] = useState([]);
@@ -26,7 +28,16 @@ const Search = () => {
         var seconds = parseInt(parts[1], 10);
         return minutes * 60 + seconds;
     }
-    useEffect(() => { if (input) search(input) }, [input]);
+    useEffect(() => {
+        if (input) {
+            search(input)
+        } else {
+            setTimeout(() => {
+                setQueryResult([]);
+                setArtists([]);
+            }, 600)
+        }
+    }, [input]);
     const search = () => {
         const api = `${apiStart}/Songs/SearchByQuery/query/${input}/UserID/${user?.id || 0}`;
         fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
@@ -76,9 +87,6 @@ const Search = () => {
         <>
             <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
                 <View style={{ flex: 1, marginTop: 50 }}>
-                    <Pressable style={{ marginHorizontal: 10 }} onPress={() => navigation.goBack()}>
-                        <Ionicons name="chevron-back" size={24} color="white" />
-                    </Pressable>
                     <Pressable style={{ marginHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 9 }}>
                         <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'white', padding: 10, flex: 1, borderRadius: 7, height: 38 }}>
                             <AntDesign name="search1" size={20} color="black" />
@@ -88,9 +96,26 @@ const Search = () => {
                     <ScrollView>
                         <View>
                             <View style={{ marginTop: 10, marginHorizontal: 12 }}>
+                                {queryResult.length === 0 &&
+                                    <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Recommended For You</Text>}
+                                {queryResult.length === 0 && recommended.slice(0, 5).map((track, index) => (
+                                    <Pressable onPress={() => { playSong(track) }} key={track?.songID} style={{ marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Image source={{ uri: track?.performerImage }}
+                                                style={{ width: 50, height: 50, borderRadius: 3 }} />
+                                            <View style={{ marginLeft: 10 }}>
+                                                <Text style={{ fontSize: 16, fontWeight: '500', color: audioPlayer?.currentTrack?.songID === track?.songID ? "#3FFF00" : "white" }}>{track?.songName}</Text>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 5 }}>
+                                                    <Text style={{ color: 'gray', fontSize: 16, fontWeight: '500' }}>{track?.performerName} • {track?.genreName}</Text>
+                                                </View>
+                                            </View>
+                                        </View>
+                                        <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{track?.songLength}</Text>
+                                    </Pressable>
+                                ))}
                                 {artists.length > 0 &&
                                     <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Artists</Text>}
-                                {artists.slice(0,3).map((artist, index) => (
+                                {artists.slice(0, 3).map((artist, index) => (
                                     <Pressable onPress={() => { navigation.navigate('Artist', { item: artist }) }} key={artist?.performerID} style={{ marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <View style={{ flexDirection: 'row' }}>
                                             <Image source={{ uri: artist?.performerImage }}
@@ -107,7 +132,7 @@ const Search = () => {
                                 ))}
                                 {queryResult.length > 0 &&
                                     <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Songs</Text>}
-                                {queryResult.slice(0,10).map((track, index) => (
+                                {queryResult.slice(0, 10).map((track, index) => (
                                     <Pressable onPress={() => { playSong(track) }} key={track?.songID} style={{ marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <View style={{ flexDirection: 'row' }}>
                                             <Image source={{ uri: track?.performerImage }}
@@ -124,10 +149,11 @@ const Search = () => {
                                 ))}
                             </View>
                         </View>
-                        <View style={{height:80}}></View>
+                        <View style={{ height: 80 }}></View>
                     </ScrollView>
                 </View>
                 <SongModal gapValue={85} />
+                <View style={{ height: audioPlayer?.currentTrack == null ? 0 : 75 }}></View>
             </LinearGradient>
         </>
     )

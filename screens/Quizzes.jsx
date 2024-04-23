@@ -50,6 +50,7 @@ const Quizzes = () => {
                 <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold', textAlign: 'center' }}>Quiz History</Text>
             <ScrollView>
                 <View style={{ padding: 15 }}>
+                    {quizzesList.length === 0 && <Text style={{color:'white',fontSize:20,fontWeight:'500',textAlign:'center'}}>No Quizzes Played...</Text>}
                     {quizzesList.map((quiz, index) => {
                         return (
                             <Pressable onPress={() => {navigation.navigate('SpecificQuizHistory', {

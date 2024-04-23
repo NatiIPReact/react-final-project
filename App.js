@@ -6,22 +6,25 @@ import { AudioPlayerContext } from './AudioPlayer';
 import { PlaylistsGlobalStateProvider } from './Playlists';
 import { LikedSongsGlobalStateProvider } from './LikedSongs';
 import { XPGlobalStateProvider } from './xp';
+import { RecommendedGlobalStateProvider } from './Recommended';
 
 export default function App() {
   return (
     <>
-      <XPGlobalStateProvider>
-        <LikedSongsGlobalStateProvider>
-          <PlaylistsGlobalStateProvider>
-            <AudioPlayerContext>
-              <GlobalStateProvider>
-                <Navigation />
-                <ModalPortal />
-              </GlobalStateProvider>
-            </AudioPlayerContext>
-          </PlaylistsGlobalStateProvider>
-        </LikedSongsGlobalStateProvider>
-      </XPGlobalStateProvider>
+      <RecommendedGlobalStateProvider>
+        <XPGlobalStateProvider>
+          <LikedSongsGlobalStateProvider>
+            <PlaylistsGlobalStateProvider>
+              <AudioPlayerContext>
+                <GlobalStateProvider>
+                  <Navigation />
+                  <ModalPortal />
+                </GlobalStateProvider>
+              </AudioPlayerContext>
+            </PlaylistsGlobalStateProvider>
+          </LikedSongsGlobalStateProvider>
+        </XPGlobalStateProvider>
+      </RecommendedGlobalStateProvider>
     </>
   );
 }

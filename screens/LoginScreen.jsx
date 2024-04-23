@@ -1,12 +1,13 @@
-import { StyleSheet, Text, View, SafeAreaView, Pressable } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, Pressable, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Entypo, MaterialCommunityIcons, AntDesign, Ionicons } from "@expo/vector-icons";
+import { Entypo, MaterialCommunityIcons, AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import { Buffer } from 'buffer';
 import { apiStart } from '../api';
+import registerForPushNotificationsAsync from '../NotificationComponent';
 
 const discovery = {
     authorizationEndpoint: 'https://accounts.spotify.com/authorize',
@@ -63,6 +64,9 @@ const LoginScreen = () => {
                         if (response != undefined && response.email != undefined) {
                             setSpotifyAccount(response);
                         }
+                        setErrorMessage("");
+                    } else {
+                        setErrorMessage("Spotify Internal Server Error...");
                     }
                 })
                 .catch(e => console.log("ERROR " + e))
@@ -89,14 +93,18 @@ const LoginScreen = () => {
                                 "image": ""
                             };
                             fetch(api, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }), body: JSON.stringify(user) })
-                            .then(res => res.json())
-                            .then(res => {
-                                console.log(res)
-                            }).catch(e => console.log(e));
+                                .then(res => res.json())
+                                .then(res => {
+                                    console.log(res)
+                                }).catch(e => console.log(e));
                             return;
                         }
                         setErrorMessage('');
                         const userAsJSON = JSON.stringify(res);
+                        registerForPushNotificationsAsync().then(token => {
+                            const api = `${apiStart}/Users/UpdateUserExpoToken/UserID/${res.id}/ExpoToken/${token}`;
+                            fetch(api, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) });
+                        });
                         AsyncStorage.setItem('@user', userAsJSON, () => { navigation.navigate("Main") });
                     } else if (res.message != undefined) {
                         navigation.navigate('SpotifySignup', {
@@ -126,8 +134,10 @@ const LoginScreen = () => {
     return (
         <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
             <SafeAreaView>
-                <View style={{ height: 80 }} />
-                <Entypo name="spotify" size={80} color="white" style={{ textAlign: "center" }} />
+                <View style={{ height: 100 }} />
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 40 }}>
+                    <Image style={{ height: 80, width: 80, borderRadius: 20 }} source={{ uri: 'https://i.imgur.com/wIEDEHv_d.webp?maxwidth=760&fidelity=grand' }} />
+                </View>
                 <Text style={{ color: "white", fontSize: 30, fontWeight: "bold", textAlign: "center", marginTop: 40 }}>Many Songs Free on Ruppinfy!</Text>
                 <View style={{ height: 60 }} />
                 <Text style={{ color: 'red', fontSize: 30, fontWeight: '500', textAlign: 'center', marginBottom: 20, display: errorMessage ? 'flex' : 'none' }}>{errorMessage}</Text>
@@ -163,6 +173,26 @@ const LoginScreen = () => {
                     <Entypo name="spotify" size={24} color="#1DB954" />
                     <Text style={{ fontWeight: "500", color: "white", textAlign: "center", flex: 1 }}>Sign In with Spotify</Text>
                 </Pressable>
+                <Pressable onPress={()=>navigation.navigate('PhoneLogin')}
+                    style={{
+                        backgroundColor: "#131624",
+                        padding: 10,
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                        width: 300,
+                        borderRadius: 25,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginVertical: 10,
+                        borderColor: "#C0C0C0",
+                        borderWidth: 0.8
+                    }}
+                >
+                    <Entypo name="phone" size={24} color="#FF5700" />
+                    <Text style={{ fontWeight: "500", color: "white", textAlign: "center", flex: 1 }}>Sign In with Phone Number</Text>
+                </Pressable>
                 <Pressable onPress={() => navigation.navigate('Signup')}
                     style={{
                         backgroundColor: "#131624",
@@ -182,26 +212,6 @@ const LoginScreen = () => {
                 >
                     <MaterialCommunityIcons name="email" size={24} color="white" />
                     <Text style={{ fontWeight: "500", color: "white", textAlign: "center", flex: 1 }}>Sign up free</Text>
-                </Pressable>
-                <Pressable onPress={() => navigation.navigate('Additions')}
-                    style={{
-                        backgroundColor: "#131624",
-                        padding: 10,
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        width: 300,
-                        borderRadius: 25,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginVertical: 10,
-                        borderColor: "#C0C0C0",
-                        borderWidth: 0.8
-                    }}
-                >
-                    <Ionicons name="add-sharp" size={24} color="white" />
-                    <Text style={{ fontWeight: "500", color: "white", textAlign: "center", flex: 1 }}>My Additions</Text>
                 </Pressable>
             </SafeAreaView>
         </LinearGradient>

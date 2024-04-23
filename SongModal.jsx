@@ -15,12 +15,12 @@ const SongModal = ({ gapValue }) => {
     const { audioPlayer, setAudioPlayer, playPreviousTrack, playNextTrack, handlePlayPause, updateTrackIsInFav } = useContext(AudioPlayer);
     const [modalVisible, setModalVisible] = useState(false);
     const [addPlaylistModalVisible, setAddPlaylistModalVisible] = useState(false);
-    const {playlists, setPlaylists} = usePlaylistsContext();
+    const { playlists, setPlaylists } = usePlaylistsContext();
     const [user, setUser] = useState(null);
     const [message, setMessage] = useState('');
     const navigation = useNavigation();
     const [showLyricsVisible, setShowLyricsVisible] = useState(false);
-    const {likedSongs, setLikedSongs} = useLikedSongsContext();
+    const { likedSongs, setLikedSongs } = useLikedSongsContext();
     const circleSize = 12;
     const getPlaylists = () => {
         const api = `${apiStart}/Playlists/GetUserPlaylists/UserID/${user?.id}`;
@@ -68,7 +68,7 @@ const SongModal = ({ gapValue }) => {
                 let tmp = [...likedSongs];
                 for (s in tmp) {
                     if (tmp[s].songID === songID) {
-                        tmp.splice(s,1);
+                        tmp.splice(s, 1);
                         break;
                     }
                 }
@@ -157,11 +157,11 @@ const SongModal = ({ gapValue }) => {
                         }}>{audioPlayer?.currentTrack?.songName} • {audioPlayer?.currentTrack?.performerName}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        { (!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
-                        <Pressable>
-                            {audioPlayer?.currentTrack?.isInFav == 1 ? <AntDesign onPress={() => deleteFromFavorites(audioPlayer?.currentTrack?.songID)} name="heart" size={24} color="#1DB954" />
-                                : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}
-                        </Pressable>
+                        {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
+                            <Pressable>
+                                {audioPlayer?.currentTrack?.isInFav == 1 ? <AntDesign onPress={() => deleteFromFavorites(audioPlayer?.currentTrack?.songID)} name="heart" size={24} color="#1DB954" />
+                                    : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}
+                            </Pressable>
                         }
                         <Pressable onPress={handlePlayPause}>
                             {audioPlayer?.isPlaying === true ? <AntDesign name="pausecircle" size={24} color="white" />
@@ -171,6 +171,7 @@ const SongModal = ({ gapValue }) => {
                 </Pressable>
             )}
             <BottomModal visible={modalVisible} onHardwareBackPress={() => setModalVisible(false)} swipeDirection={["up", "down"]}
+                onSwipeOut={() => setModalVisible(false)}
                 swipeThreshold={200}>
                 <ModalContent style={{ height: "100%", width: "100%", backgroundColor: "#5072A7" }}>
                     <View style={{ height: "100%", width: "100%", marginTop: 40 }}>
@@ -178,9 +179,9 @@ const SongModal = ({ gapValue }) => {
                             <AntDesign name="down" size={24} color="white" onPress={() => setModalVisible(!modalVisible)} />
                             <Text style={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}>{audioPlayer?.currentTrack?.songName}</Text>
                             {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
-                            <Pressable onPress={showPlaylists}>
-                                <Ionicons name="add" size={45} color='white' />
-                            </Pressable>}
+                                <Pressable onPress={showPlaylists}>
+                                    <Ionicons name="add" size={45} color='white' />
+                                </Pressable>}
                         </Pressable>
                         <View style={{ height: 70 }} />
                         <View style={{ padding: 10 }}>
@@ -188,12 +189,20 @@ const SongModal = ({ gapValue }) => {
                             <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <View>
                                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>{audioPlayer?.currentTrack?.songName}</Text>
-                                    <Text style={{ marginTop: 4, color: '#D3D3D3' }}>{audioPlayer?.currentTrack?.performerName}</Text>
+                                    <Pressable onPress={()=>{navigation.navigate('Artist', {
+                                        item: {
+                                            performerName:audioPlayer?.currentTrack?.performerName,
+                                            performerImage:audioPlayer?.currentTrack?.performerImage,
+                                            performerID:audioPlayer?.currentTrack?.performerID
+                                        }
+                                    });setModalVisible(false);}}>
+                                        <Text style={{ marginTop: 4, color: '#D3D3D3' }}>{audioPlayer?.currentTrack?.performerName}</Text>
+                                    </Pressable>
                                 </View>
-                                { (!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
-                                <View>
-                                {audioPlayer?.currentTrack?.isInFav == 1 ? <AntDesign onPress={() => deleteFromFavorites(audioPlayer?.currentTrack?.songID)} name="heart" size={24} color="#1DB954" />
-                                    : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}</View>}
+                                {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
+                                    <View>
+                                        {audioPlayer?.currentTrack?.isInFav == 1 ? <AntDesign onPress={() => deleteFromFavorites(audioPlayer?.currentTrack?.songID)} name="heart" size={24} color="#1DB954" />
+                                            : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}</View>}
                             </View>
                             <View style={{ marginTop: 10 }}>
                                 <View style={{ width: '100%', marginTop: 10, height: 3, backgroundColor: 'gray', borderRadius: 5 }}>
@@ -213,9 +222,9 @@ const SongModal = ({ gapValue }) => {
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 17 }}>
                                 {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
-                                <Pressable onPress={showLyrics}>
-                                    <MaterialIcons name="lyrics" size={30} color="purple" />
-                                </Pressable>
+                                    <Pressable onPress={showLyrics}>
+                                        <MaterialIcons name="lyrics" size={30} color="purple" />
+                                    </Pressable>
                                 }
                                 <Pressable onPress={playPreviousTrack}>
                                     <Ionicons name="play-skip-back" size={30} color="white" />
@@ -236,22 +245,22 @@ const SongModal = ({ gapValue }) => {
                                     <Ionicons name="play-skip-forward" size={30} color="white" />
                                 </Pressable>
                                 {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
-                                <Pressable onPress={OpenOnYT} style={{
-                                    backgroundColor: 'white',
-                                    borderRadius: 15, // Half of the size of the icon to make it circular
-                                    width: 30, // Size of the icon
-                                    height: 30, // Size of the icon
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}>
-                                    <Entypo name="youtube-with-circle" size={30} color="#FF0000" />
-                                </Pressable> }
+                                    <Pressable onPress={OpenOnYT} style={{
+                                        backgroundColor: 'white',
+                                        borderRadius: 15, // Half of the size of the icon to make it circular
+                                        width: 30, // Size of the icon
+                                        height: 30, // Size of the icon
+                                        justifyContent: 'center',
+                                        alignItems: 'center'
+                                    }}>
+                                        <Entypo name="youtube-with-circle" size={30} color="#FF0000" />
+                                    </Pressable>}
                             </View>
                         </View>
                     </View>
                 </ModalContent>
             </BottomModal>
-                {showLyricsVisible && <LyricsOverlay song={audioPlayer.currentTrack} hideLyricsModal={hideLyricsModal}/>}
+            {showLyricsVisible && <LyricsOverlay song={audioPlayer.currentTrack} hideLyricsModal={hideLyricsModal} />}
             {addPlaylistModalVisible === true && (
                 <View style={{ flex: 1 }}>
                     <Modal

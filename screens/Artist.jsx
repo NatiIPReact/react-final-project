@@ -114,11 +114,17 @@ const Artist = () => {
                 setFollowers(prevState => prevState - 1);
             }).catch(e => console.log(e));
     };
+    const images = ['https://bootdey.com/img/Content/user_1.jpg', 'https://bootdey.com/img/Content/user_2.jpg'
+        , 'https://bootdey.com/img/Content/user_3.jpg'];
     const getArtistComments = () => {
         const api = `${apiStart}/Comments/GetArtistsComments/PerformerID/${route?.params?.item?.performerID}`;
         fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             .then(res => res.json())
             .then(res => {
+                for (i of res) {
+                    if (i.userImage == null)
+                        i.randomImage = images[Math.floor(Math.random() * images.length)];
+                }
                 setComments(res);
             }).catch(e => console.log(e));
     };
@@ -148,7 +154,10 @@ const Artist = () => {
             .then(res => {
                 if (res != undefined && res.message != undefined && res.message === "Success") {
                     commentToPost.userImage = user?.image;
+                    if (commentToPost.userImage == null)
+                        commentToPost.randomImage = images[Math.floor(Math.random() * images.length)];
                     setComments([...comments, commentToPost]);
+                    setCommentInput('');
                 }
             }).catch(e => console.log(e));
     };
@@ -157,8 +166,6 @@ const Artist = () => {
             Linking.openURL(concerts[index]?.url);
         }
     };
-    const images = ['https://bootdey.com/img/Content/user_1.jpg', 'https://bootdey.com/img/Content/user_2.jpg'
-        , 'https://bootdey.com/img/Content/user_3.jpg'];
     return (
         <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
             <ScrollView style={{ marginTop: 50 }}>
@@ -210,7 +217,7 @@ const Artist = () => {
                         <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 20, marginBottom: 15 }}>Comments</Text>
                         {comments?.map((comment, index) => (
                             <View key={index} style={{ flex: 1, flexDirection: 'row', marginBottom: 10 }}>
-                                <Image source={{ uri: comment?.userImage == null ? images[Math.floor(Math.random() * images.length)] : `data:image/jpeg;base64,${comment?.userImage}` }}
+                                <Image source={{ uri: comment?.userImage == null ? comment?.randomImage : `data:image/jpeg;base64,${comment?.userImage}` }}
                                     style={{ width: 50, height: 50, borderRadius: 3, marginRight: 10 }} />
                                 <View>
                                     <Text style={{ color: 'white', fontWeight: '500' }}>{comment?.date?.split('T')[0]}{" "}
@@ -248,6 +255,7 @@ const Artist = () => {
                 </View>
                 <View>
                     <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25, marginBottom: 15, marginTop: 10, marginLeft: 10 }}>Related Concerts</Text>
+                    {concerts.length === 0 && <Text style={{color:'white', textAlign:'center',fontWeight:'500',fontSize:20}}>No concerts soon...</Text>}
                     {concerts?.map((concert, index) => (
                         <View key={index} style={{ flex: 1, marginBottom: 10, marginLeft: 13 }}>
                             <View>

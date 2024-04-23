@@ -29,6 +29,7 @@ import SendNotification from "./screens/SendNotification";
 import SpotifySignup from "./screens/SpotifySignup";
 import Chat from "./screens/Chat";
 import Leaderboard from "./screens/Leaderboard";
+import PhoneLogin from "./screens/PhoneLogin";
 
 const Tab = createBottomTabNavigator();
 
@@ -78,7 +79,7 @@ function Navigation() {
                 <Stack.Screen name="Login" component={LoginScreen} options={{headerShown:false}}/>
                 <Stack.Screen name="EmailLogin" component={EmailLogin} options={{headerShown:false}}/>
                 <Stack.Screen name="Signup" component={Signup} options={{headerShown:false}}/>
-                <Stack.Screen name="Main" component={BottomTabs} options={{headerShown:false}}/>
+                <Stack.Screen name="Main" component={BottomTabs} options={{headerShown:false,gestureEnabled: false}}/>
                 <Stack.Screen name="Liked" component={LikedSongsScreen} options={{headerShown:false}}/>
                 <Stack.Screen name="Playlist" component={Playlist} options={{headerShown:false}}/>
                 <Stack.Screen name="Artist" component={Artist} options={{headerShown:false}}/>
@@ -99,6 +100,7 @@ function Navigation() {
                 <Stack.Screen name="SpotifySignup" component={SpotifySignup} options={{headerShown:false}}/>
                 <Stack.Screen name="Chat" component={Chat} options={{headerShown:false}}/>
                 <Stack.Screen name="Leaderboard" component={Leaderboard} options={{headerShown:false}}/>
+                <Stack.Screen name="PhoneLogin" component={PhoneLogin} options={{headerShown:false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

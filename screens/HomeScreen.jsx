@@ -17,9 +17,11 @@ import { usePlaylistsContext } from '../Playlists'
 import registerForPushNotificationsAsync from '../NotificationComponent'
 import { useLikedSongsContext } from '../LikedSongs'
 import {useXPContext} from '../xp'
+import { useRecommendedContext } from '../Recommended'
 
 const HomeScreen = () => {
-    const [featuredSongs, setFeaturedSongs] = useState([]);
+    //const [featuredSongs, setFeaturedSongs] = useState([]);
+    const { recommended, setRecommended } = useRecommendedContext();
     const [topArtists, setTopArtists] = useState([]);
     const { audioPlayer, setAudioPlayer, playRadioStation } = useContext(AudioPlayer);
     const { user, setUser } = useGlobalState();
@@ -28,6 +30,7 @@ const HomeScreen = () => {
     const navigation = useNavigation();
     const {playlists, setPlaylists} = usePlaylistsContext();
     const {likedSongs, setLikedSongs} = useLikedSongsContext();
+   
     //const [playlists, setPlaylists] = useState([]);
     const getUser = async () => {
         try {
@@ -42,10 +45,11 @@ const HomeScreen = () => {
         }
     }
     const getFeaturedSongs = async () => {
-        const url = `${apiStart}/Songs/GetTop15?UserID=${user.id}`;
+        //const url = `${apiStart}/Songs/GetTop15?UserID=${user.id}`;
+        const url = `${apiStart}/Songs/GetUserRecommendations/UserID/${user?.id}`;
         fetch(url, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             .then((res) => { return res.json(); }).then((res) => {
-                setFeaturedSongs(res);
+                setRecommended(res);
             }).catch((err) => console.log(err));
     }
     const getTopArtists = async () => {
@@ -157,8 +161,8 @@ const HomeScreen = () => {
                         </View>
                     </Pressable>
                 </View>
-                <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>Featured Songs</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>{featuredSongs.map((item, index) => (
+                <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>Recommended For You</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>{recommended?.map((item, index) => (
                     <SongCard item={item} key={index} />
                 ))}</ScrollView>
                 <View style={{ height: 10 }} />
@@ -195,9 +199,10 @@ const HomeScreen = () => {
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Pop</Text>
                     </Pressable>
                 </ScrollView>
+                {playlists.length > 0 &&
                 <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>
                     Your Playlists
-                </Text>
+                </Text>}
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     {playlists.map((item, index) => (
                         <Pressable style={{ margin: 10 }} onPress={() => navigation.navigate('Playlist', {
@@ -212,6 +217,7 @@ const HomeScreen = () => {
                 <View style={{ height: 100 }}></View>
             </ScrollView>
             <SongModal gapValue={85} />
+            <View style={{height:audioPlayer.currentTrack == null ? 0 : 60}}></View>
         </LinearGradient>
     )
 }

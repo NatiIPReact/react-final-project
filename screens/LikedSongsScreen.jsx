@@ -169,14 +169,11 @@ const LikedSongsScreen = () => {
                         </Pressable>
                     </Pressable>
                     <View style={{ height: 50 }} />
-                    <View style={{ marginHorizontal: 10 }}>
-                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>Liked Songs</Text>
-                        <Text style={{ fontSize: 13, marginTop: 5, color: 'white' }}>{likedSongs.length} Songs • {totalTime}</Text>
-                    </View>
-                    <Pressable style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 10 }}>
-                        <Pressable style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: '#1DB954', justifyContent: 'center', alignItems: 'center' }}>
-                            <AntDesign name="arrowdown" size={20} color='white' />
-                        </Pressable>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom:10 }}>
+                        <View style={{marginHorizontal:10}}>
+                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>Liked Songs</Text>
+                            <Text style={{ fontSize: 13, marginTop: 5, color: 'white' }}>{likedSongs.length} Songs • {totalTime}</Text>
+                        </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                             <Pressable onPress={shufflePlay}>
                                 <Entypo name="shuffle" size={24} color="#1DB954" /></Pressable>
@@ -185,7 +182,7 @@ const LikedSongsScreen = () => {
                                 <Entypo name="controller-play" size={24} color="white" />
                             </Pressable>
                         </View>
-                    </Pressable>
+                    </View>
                     <FlatList showsVerticalScrollIndicator={false} data={searchedTracks} renderItem={({ item, index }) => (
                         <SongItem deleteFromFavorites={deleteFromFavorites} item={item} onPress={playSong} ind={index} isPlaying={item?.songID === audioPlayer?.currentTrack?.songID} />
                     )} />
@@ -218,6 +215,7 @@ const LikedSongsScreen = () => {
                         </Pressable>
                     </View>
                 }
+                <View style={{height:audioPlayer.currentTrack == null ? 0 : 95}}></View>
             </LinearGradient>
             <SongModal gapValue={25} />
         </>

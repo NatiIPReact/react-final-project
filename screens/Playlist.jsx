@@ -105,14 +105,13 @@ const Playlist = () => {
             <Image style={{ width: 200, height: 200 }} source={{ uri: route.params.playlistImage }} />
           </View>
         </View>
-        <Text style={{ color: 'white', marginHorizontal: 12, marginTop: 10, fontSize: 25, fontWeight: 'bold' }}>{route?.params?.item?.name}</Text>
-        <View style={{ marginHorizontal: 12, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 10, gap: 7 }}>
-          <Text style={{ color: '#909090', fontSize: 14, fontWeight: 'bold' }}>{playlistLengthMessage}</Text>
-        </View>
-        <Pressable style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 10 }}>
-          <Pressable style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: '#1DB954', justifyContent: 'center', alignItems: 'center' }}>
-            <AntDesign name="arrowdown" size={20} color='white' />
-          </Pressable>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{marginBottom:10}}>
+            <Text style={{ color: 'white', marginHorizontal: 12, marginTop: 10, fontSize: 25, fontWeight: 'bold' }}>{route?.params?.item?.name}</Text>
+            <View style={{ marginHorizontal: 12, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 10, gap: 7 }}>
+              <Text style={{ color: '#909090', fontSize: 14, fontWeight: 'bold' }}>{playlistLengthMessage}</Text>
+            </View>
+          </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Pressable onPress={shufflePlay}>
               <Entypo name="shuffle" size={24} color="#1DB954" /></Pressable>
@@ -121,7 +120,7 @@ const Playlist = () => {
               <Entypo name="controller-play" size={24} color="white" />
             </Pressable>
           </View>
-        </Pressable>
+        </View>
         <View>
           <View style={{ marginTop: 10, marginHorizontal: 12 }}>
             {tracks.length > 0 ? tracks?.map((track, index) => (
@@ -145,6 +144,7 @@ const Playlist = () => {
         </View>
       </ScrollView>
       <SongModal gapValue={25} />
+      <View style={{height:audioPlayer.currentTrack == null ? 0 : 95}}></View>
     </LinearGradient>
   )
 }

@@ -17,6 +17,7 @@ const EditProfile = () => {
     const [name, setName] = useState(user?.name);
     const [errorMessage, setErrorMessage] = useState('');
     const [image, setImage] = useState(null);
+    const [phone, setPhone] = useState("");
     const [successMessage, setSuccessMessage] = useState('');
     const save = async () => {
         let imageString;
@@ -31,6 +32,8 @@ const EditProfile = () => {
                 encoding: FileSystem.EncodingType.Base64,
             });
             data.image = imageString;
+        } else {
+            data.image = ''
         }
         const api = `${apiStart}/Users/UpdateUserDetails?oldEmail=${user?.email}`;
         fetch(api, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }), body: JSON.stringify(data) })
@@ -40,11 +43,43 @@ const EditProfile = () => {
                     setErrorMessage(res?.message)
                     return;
                 }
-                setErrorMessage('')
                 setSuccessMessage(res?.message)
                 setUser({ ...user, email: email, password: password, name: name, image: image == null ? user?.image : imageString })
             }).catch(e => console.log(e))
+        const phoneAPI = `${apiStart}/Users/UpdateUserPhone/UserID/${user?.id}/Phone/${phone == null ? "-1" : phone?.includes('+') ? phone.replace(/\+/g, '') : phone === "" ? "-1" : phone}`;
+        if (phone == null)
+            setPhone('');
+        fetch(phoneAPI, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then(res => {
+                if (res.ok === false) {
+                    return;
+                }
+                return res.json()
+            }).then(res => {
+                if (res === false) {
+                    setErrorMessage("");
+                    return;
+                }
+                if (res.message != undefined && res.message.includes('taken')) {
+                    setErrorMessage(res.message)
+                } else setErrorMessage("")
+            });
     };
+    const getPhoneNumber = () => {
+        const api = `${apiStart}/Users/GetUserPhoneNumber/UserID/${user?.id}`;
+        fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then(res => res.json())
+            .then(res => {
+                if (res == undefined || res.phoneNumber == undefined || res.phoneNumber.includes('null')) {
+                    setPhone('');
+                    return;
+                }
+                setPhone(res.phoneNumber);
+            }).catch(e => console.log(e))
+    };
+    useEffect(() => {
+        getPhoneNumber()
+    }, [])
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -66,8 +101,8 @@ const EditProfile = () => {
             </View>
             <View style={styles.contentContainer}>
                 <View style={styles.inputContainer}>
-                    <Pressable onPress={pickImage} style={{marginBottom:25}}>
-                    {image != null ? <Image source={{uri:image.assets[0].uri}} style={{width: 65,height: 65,borderRadius: 50}}/> : (user !== undefined && user.image == null) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
+                    <Pressable onPress={pickImage} style={{ marginBottom: 25 }}>
+                        {image != null ? <Image source={{ uri: image.assets[0].uri }} style={{ width: 65, height: 65, borderRadius: 50 }} /> : (user !== undefined && user.image == null) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user.image}` }} style={{ width: 65, height: 65, borderRadius: 50 }} />}
                     </Pressable>
                     <TextInput
                         style={styles.input}
@@ -98,11 +133,21 @@ const EditProfile = () => {
                         autoCapitalize="none"
                         autoCorrect={false}
                     />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Phone Number"
+                        placeholderTextColor="#003f5c"
+                        onChangeText={(newPhone) => setPhone(newPhone)}
+                        value={phone}
+                        keyboardType="phone-pad"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                    />
                     <TouchableOpacity style={styles.loginButton} onPress={save}>
                         <Text style={styles.buttonText}>Save</Text>
                     </TouchableOpacity>
                     <Text style={{ color: 'red', fontSize: 23, marginTop: 5, display: errorMessage ? 'flex' : 'none' }}>{errorMessage}</Text>
-                    <Text style={{ color: 'green', fontSize: 23, marginTop: 5, display: successMessage ? 'flex' : 'none' }}>{successMessage}</Text>
+                    <Text style={{ color: 'green', fontSize: 23, marginTop: 5, display: successMessage ? 'flex' : 'none' }}>{errorMessage === "" ? successMessage : ""}</Text>
                 </View>
             </View>
         </LinearGradient>

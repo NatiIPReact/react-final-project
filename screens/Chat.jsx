@@ -94,7 +94,7 @@ const Chat = () => {
         <FlatList style={{ marginLeft: 5 }}
           data={JSON.parse(JSON.stringify(messages)).reverse()}
           renderItem={({ item }) => (
-            <Text style={{ marginBottom: 10, color: 'white', fontSize: 17 }}>{convertTimestampToDate(item?.timestamp)} By {user?.name}: {item?.text}</Text>
+            <Text style={{ marginBottom: 10, color: 'white', fontSize: 17 }}>{convertTimestampToDate(item?.timestamp)} By {item?.userName}: {item?.text}</Text>
           )}
           keyExtractor={(item) => item.id.toString()}
           inverted
