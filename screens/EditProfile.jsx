@@ -8,6 +8,7 @@ import { apiStart } from '../api';
 import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from '../ProfilePicture';
 import * as FileSystem from 'expo-file-system';
+import SongModal from '../SongModal';
 
 const EditProfile = () => {
     const navigation = useNavigation();
@@ -51,15 +52,8 @@ const EditProfile = () => {
             setPhone('');
         fetch(phoneAPI, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             .then(res => {
-                if (res.ok === false) {
-                    return;
-                }
                 return res.json()
             }).then(res => {
-                if (res === false) {
-                    setErrorMessage("");
-                    return;
-                }
                 if (res.message != undefined && res.message.includes('taken')) {
                     setErrorMessage(res.message)
                 } else setErrorMessage("")
@@ -150,6 +144,7 @@ const EditProfile = () => {
                     <Text style={{ color: 'green', fontSize: 23, marginTop: 5, display: successMessage ? 'flex' : 'none' }}>{errorMessage === "" ? successMessage : ""}</Text>
                 </View>
             </View>
+            <SongModal gapValue={25} />
         </LinearGradient>
     )
 }
