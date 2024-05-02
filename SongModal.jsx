@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image, Pressable, Modal, TextInput, Button } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { apiStart } from './api'
-import { Ionicons, AntDesign, Entypo, FontAwesome, Feather, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, AntDesign, Entypo, FontAwesome, Feather, MaterialIcons, EvilIcons } from '@expo/vector-icons';
 import { BottomModal, ModalContent } from 'react-native-modals';
 import { AudioPlayer } from './AudioPlayer';
 import { useNavigation } from '@react-navigation/native';
@@ -10,6 +10,9 @@ import { Linking } from 'react-native';
 import LyricsOverlay from './LyricsModal';
 import { usePlaylistsContext } from './Playlists';
 import { useLikedSongsContext } from './LikedSongs';
+import * as FileSystem from 'expo-file-system';
+import * as Permissions from 'expo-permissions';
+import { shareAsync } from 'expo-sharing';
 
 const SongModal = ({ gapValue }) => {
     const { audioPlayer, setAudioPlayer, playPreviousTrack, playNextTrack, handlePlayPause, updateTrackIsInFav } = useContext(AudioPlayer);
@@ -146,6 +149,21 @@ const SongModal = ({ gapValue }) => {
     const hideLyricsModal = () => {
         setShowLyricsVisible(false);
     };
+    const downloadSong = async () => {
+        const audioUrl = `${apiStart}/Songs/GetSongByID/SongID/${audioPlayer?.currentTrack?.songID}`;
+        FileSystem.downloadAsync(
+            audioUrl,
+            FileSystem.documentDirectory + audioPlayer?.currentTrack?.songName + ".mp3"
+        )
+            .then(async ({ uri }) => {
+                // console.log('Finished downloading to ', uri);
+                await shareAsync(uri);
+                //Linking.openURL(uri)
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
     return (
         <>
             {audioPlayer.currentTrack && (
@@ -189,20 +207,27 @@ const SongModal = ({ gapValue }) => {
                             <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <View>
                                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>{audioPlayer?.currentTrack?.songName}</Text>
-                                    <Pressable onPress={()=>{navigation.navigate('Artist', {
-                                        item: {
-                                            performerName:audioPlayer?.currentTrack?.performerName,
-                                            performerImage:audioPlayer?.currentTrack?.performerImage,
-                                            performerID:audioPlayer?.currentTrack?.performerID
-                                        }
-                                    });setModalVisible(false);}}>
+                                    <Pressable onPress={() => {
+                                        navigation.navigate('Artist', {
+                                            item: {
+                                                performerName: audioPlayer?.currentTrack?.performerName,
+                                                performerImage: audioPlayer?.currentTrack?.performerImage,
+                                                performerID: audioPlayer?.currentTrack?.performerID
+                                            }
+                                        }); setModalVisible(false);
+                                    }}>
                                         <Text style={{ marginTop: 4, color: '#D3D3D3' }}>{audioPlayer?.currentTrack?.performerName}</Text>
                                     </Pressable>
                                 </View>
-                                {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
-                                    <View>
-                                        {audioPlayer?.currentTrack?.isInFav == 1 ? <AntDesign onPress={() => deleteFromFavorites(audioPlayer?.currentTrack?.songID)} name="heart" size={24} color="#1DB954" />
-                                            : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}</View>}
+                                <View style={{ flexDirection: 'row' }}>
+                                    <Pressable onPress={downloadSong}>
+                                        <EvilIcons name='arrow-down' size={31} color='#1DB954' />
+                                    </Pressable>
+                                    {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
+                                        <View>
+                                            {audioPlayer?.currentTrack?.isInFav == 1 ? <AntDesign onPress={() => deleteFromFavorites(audioPlayer?.currentTrack?.songID)} name="heart" size={24} color="#1DB954" />
+                                                : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}</View>}
+                                </View>
                             </View>
                             <View style={{ marginTop: 10 }}>
                                 <View style={{ width: '100%', marginTop: 10, height: 3, backgroundColor: 'gray', borderRadius: 5 }}>

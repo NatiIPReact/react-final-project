@@ -30,6 +30,7 @@ import SpotifySignup from "./screens/SpotifySignup";
 import Chat from "./screens/Chat";
 import Leaderboard from "./screens/Leaderboard";
 import PhoneLogin from "./screens/PhoneLogin";
+import Shazam from "./screens/Shazam";
 
 const Tab = createBottomTabNavigator();
 
@@ -101,6 +102,7 @@ function Navigation() {
                 <Stack.Screen name="Chat" component={Chat} options={{headerShown:false}}/>
                 <Stack.Screen name="Leaderboard" component={Leaderboard} options={{headerShown:false}}/>
                 <Stack.Screen name="PhoneLogin" component={PhoneLogin} options={{headerShown:false}}/>
+                <Stack.Screen name="Shazam" component={Shazam} options={{headerShown:false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

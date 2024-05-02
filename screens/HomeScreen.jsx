@@ -11,7 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useGlobalState } from '../components/user'
 import ProfilePicture from '../ProfilePicture'
 import SongModal from '../SongModal'
-import { AntDesign, MaterialIcons, Entypo } from '@expo/vector-icons'
+import { AntDesign, MaterialIcons, Entypo, Fontisto } from '@expo/vector-icons'
 import { AudioPlayer } from '../AudioPlayer'
 import { usePlaylistsContext } from '../Playlists'
 import registerForPushNotificationsAsync from '../NotificationComponent'

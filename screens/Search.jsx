@@ -113,6 +113,13 @@ const Search = () => {
                                         <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{track?.songLength}</Text>
                                     </Pressable>
                                 ))}
+                                {queryResult.length === 0 && <Pressable onPress={() => navigation.navigate('Shazam')}>
+                                    <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Shazam Your Song</Text>
+                                    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                                        <Image style={{ width: 150, height: 150 }}
+                                            source={{ uri: 'https://cdn.icon-icons.com/icons2/1826/PNG/512/4202070logoshazamsocialsocialmedia-115618_115683.png' }} />
+                                    </View>
+                                </Pressable>}
                                 {artists.length > 0 &&
                                     <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Artists</Text>}
                                 {artists.slice(0, 3).map((artist, index) => (

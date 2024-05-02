@@ -16,7 +16,7 @@ const Artist = () => {
     const [tracks, setTracks] = useState([]);
     const [artistLengthMessage, setArtistLengthMessage] = useState('');
     const navigation = useNavigation();
-    const { audioPlayer, setAudioPlayer, updateQueueAndPlay, shuffleQueue } = useContext(AudioPlayer);
+    const { audioPlayer, setAudioPlayer, updateQueueAndPlay, shuffleQueue, handlePlayPause } = useContext(AudioPlayer);
     const [isFollowing, setIsFollowing] = useState(false);
     const [followers, setFollowers] = useState(0);
     const [comments, setComments] = useState([]);
@@ -24,6 +24,7 @@ const Artist = () => {
     const [commentErrorMessage, setCommentErrorMessage] = useState('');
     const [commentTextInputBorderColor, setCommentTextInputBorderColor] = useState('transparent');
     const [concerts, setConcerts] = useState([]);
+    const [instagram, setInstagram] = useState('');
     useEffect(() => {
         async function fetchArtistSongs() {
             const api = `${apiStart}/Songs/GetPerformerSongs/PerformerID/${route?.params?.item?.performerID}/UserID/${user?.id}`;
@@ -48,7 +49,17 @@ const Artist = () => {
         getNumberOfFollowers();
         getArtistComments();
         getArtistConcerts();
+        getArtistInstagramHandle();
     }, []);
+    const getArtistInstagramHandle = () => {
+        const api = `${apiStart}/Performers/GetPerformerInstagram/PerformerID/${route?.params?.item?.performerID}`;
+        fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then(res => res.json())
+            .then(res => {
+                if (res?.instagram)
+                    setInstagram(res?.instagram);
+            }).catch(err => console.log(err))
+    };
     const getArtistConcerts = () => {
         fetch(`https://app.ticketmaster.com/discovery/v2/events.json?keyword=${route?.params?.item?.performerName}&apikey=sGS4leVOIAuCcazajk6HxuSuvPhcaoCu`,
             { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
@@ -166,6 +177,13 @@ const Artist = () => {
             Linking.openURL(concerts[index]?.url);
         }
     };
+    const openInstagram = async () => {
+        if (audioPlayer?.isPlaying === true) {
+            await handlePlayPause();
+        }
+        const url = `https://www.instagram.com/${instagram}`;
+        Linking.openURL(url);
+    };
     return (
         <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
             <ScrollView style={{ marginTop: 50 }}>
@@ -175,9 +193,16 @@ const Artist = () => {
                         <Image style={{ width: 200, height: 200 }} source={{ uri: route?.params?.item?.performerImage }} />
                     </View>
                 </View>
-                <Text style={{ color: 'white', marginHorizontal: 12, marginTop: 10, fontSize: 25, fontWeight: 'bold' }}>{route?.params?.item?.performerName}</Text>
-                <View style={{ marginHorizontal: 12, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 10, gap: 7 }}>
-                    <Text style={{ color: '#909090', fontSize: 14, fontWeight: 'bold' }}>{artistLengthMessage} • {followers} Followers</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <View>
+                        <Text style={{ color: 'white', marginHorizontal: 12, marginTop: 10, fontSize: 25, fontWeight: 'bold' }}>{route?.params?.item?.performerName}</Text>
+                        <View style={{ marginHorizontal: 12, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 10, gap: 7 }}>
+                            <Text style={{ color: '#909090', fontSize: 14, fontWeight: 'bold' }}>{artistLengthMessage} • {followers} Followers</Text>
+                        </View>
+                    </View>
+                    <Pressable style={{ marginRight: 30 }} onPress={openInstagram}>
+                        <Entypo name="instagram" size={24} color="white" />
+                    </Pressable>
                 </View>
                 <Pressable style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 10 }}>
                     <Pressable style={{ backgroundColor: '#282828', padding: 10, borderRadius: 30 }} onPress={isFollowing ? unfollowArtist : followArtist}>
@@ -214,7 +239,7 @@ const Artist = () => {
                 </View>
                 <View>
                     <View style={{ marginTop: 10, marginHorizontal: 12 }}>
-                        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 20, marginBottom: 15 }}>Comments</Text>
+                        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 20, marginBottom: 15 }}>{comments.length} Comments</Text>
                         {comments?.map((comment, index) => (
                             <View key={index} style={{ flex: 1, flexDirection: 'row', marginBottom: 10 }}>
                                 <Image source={{ uri: comment?.userImage == null ? comment?.randomImage : `data:image/jpeg;base64,${comment?.userImage}` }}
@@ -255,7 +280,7 @@ const Artist = () => {
                 </View>
                 <View>
                     <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 25, marginBottom: 15, marginTop: 10, marginLeft: 10 }}>Related Concerts</Text>
-                    {concerts.length === 0 && <Text style={{color:'white', textAlign:'center',fontWeight:'500',fontSize:20}}>No concerts soon...</Text>}
+                    {concerts.length === 0 && <Text style={{ color: 'white', textAlign: 'center', fontWeight: '500', fontSize: 20 }}>No concerts soon...</Text>}
                     {concerts?.map((concert, index) => (
                         <View key={index} style={{ flex: 1, marginBottom: 10, marginLeft: 13 }}>
                             <View>
