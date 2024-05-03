@@ -54,7 +54,7 @@ const EmailLogin = () => {
                 }
                 if (user?.isVerified === false) {
                     setErrorMessage("Verify your email to login!");
-                    const api = `${apiStart}/Users/InitiateNewValidation`;
+                    const api = `${apiStart}/Users/InitiateNewValidationIfOldInvalid`;
                     let verificationUser = {
                         "id": user?.id,
                         "email": "",
@@ -68,7 +68,11 @@ const EmailLogin = () => {
                     fetch(api, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }), body: JSON.stringify(verificationUser) })
                         .then(res => res.json())
                         .then(res => {
-                            console.log('sent')
+                            if (res != undefined && res.sent != undefined && res.sent === true) {
+                                setErrorMessage("Verify your email to login!\nEmail sent.");
+                            } else if (res != undefined && res.sent != undefined && res.sent === false) {
+                                setErrorMessage("Verify your email to login!\nToken is valid for 30 minutes.");
+                            }
                         }).catch(e => console.log(e));
                     return;
                 }
