@@ -15,6 +15,7 @@ import * as Permissions from 'expo-permissions';
 import { shareAsync } from 'expo-sharing';
 import {Slider} from '@miblanchard/react-native-slider';
 import { useRecommendedContext } from './Recommended';
+import { YoutubeAPIKey } from './apikeys';
 
 const SongModal = ({ gapValue }) => {
     const { audioPlayer, setAudioPlayer, playPreviousTrack, changePosition, playNextTrack, handlePlayPause, updateTrackIsInFav } = useContext(AudioPlayer);
@@ -139,7 +140,7 @@ const SongModal = ({ gapValue }) => {
     async function OpenOnYT() {
         const song = audioPlayer?.currentTrack?.songName;
         const artist = audioPlayer?.currentTrack?.performerName;
-        const apiKey = 'AIzaSyAUBDnPCnsMDLrpjpfT9RNnIi25AQD65B8';
+        const apiKey = YoutubeAPIKey;
         const formattedSongName = encodeURIComponent(song);
         const formattedArtistName = encodeURIComponent(artist);
         const songNameSearch = song.replace(/\s/g, '+');

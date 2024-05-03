@@ -8,6 +8,7 @@ import * as FileSystem from 'expo-file-system';
 import hmacSHA1 from 'crypto-js/hmac-sha1';
 import Base64 from 'crypto-js/enc-base64';
 import { AudioPlayer } from '../AudioPlayer';
+import { ShazamAccessKey, ShazamSecret } from '../apikeys';
 
 const defaultOptions = {
     host: 'identify-ap-southeast-1.acrcloud.com',
@@ -15,8 +16,8 @@ const defaultOptions = {
     signature_version: '1',
     data_type: 'audio',
     secure: true,
-    access_key: '0ac6b9616180d30ee46b88ab92dd28bb',
-    access_secret: 'EcAL7IfjSjkGLBbYStSzkWfwfOQeinOtbiuNfqiv',
+    access_key: ShazamAccessKey,
+    access_secret: ShazamSecret,
 };
 
 const Shazam = () => {

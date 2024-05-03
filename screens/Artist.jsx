@@ -9,6 +9,7 @@ import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import { useGlobalState } from '../components/user';
 import SongModal from '../SongModal';
 import { Button } from '@rneui/themed';
+import { TicketMasterAPIKey } from '../apikeys';
 
 const Artist = () => {
     const { user, setUser } = useGlobalState();
@@ -61,7 +62,7 @@ const Artist = () => {
             }).catch(err => console.log(err))
     };
     const getArtistConcerts = () => {
-        fetch(`https://app.ticketmaster.com/discovery/v2/events.json?keyword=${route?.params?.item?.performerName}&apikey=sGS4leVOIAuCcazajk6HxuSuvPhcaoCu`,
+        fetch(`https://app.ticketmaster.com/discovery/v2/events.json?keyword=${route?.params?.item?.performerName}&apikey=${TicketMasterAPIKey}`,
             { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             .then(res => res.json())
             .then(res => {
