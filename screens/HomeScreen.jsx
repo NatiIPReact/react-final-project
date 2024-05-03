@@ -18,18 +18,20 @@ import registerForPushNotificationsAsync from '../NotificationComponent'
 import { useLikedSongsContext } from '../LikedSongs'
 import {useXPContext} from '../xp'
 import { useRecommendedContext } from '../Recommended'
+import { useRecentlyPlayedContext } from '../RecentlyPlayed'
 
 const HomeScreen = () => {
     //const [featuredSongs, setFeaturedSongs] = useState([]);
     const { recommended, setRecommended } = useRecommendedContext();
     const [topArtists, setTopArtists] = useState([]);
-    const { audioPlayer, setAudioPlayer, playRadioStation } = useContext(AudioPlayer);
+    const { audioPlayer, setAudioPlayer, playRadioStation, updateQueueAndPlay } = useContext(AudioPlayer);
     const { user, setUser } = useGlobalState();
     const { xp, setXP } = useXPContext();
     const [message, setMessage] = useState('');
     const navigation = useNavigation();
     const {playlists, setPlaylists} = usePlaylistsContext();
     const {likedSongs, setLikedSongs} = useLikedSongsContext();
+    const {recentlyPlayed, setRecentlyPlayed} = useRecentlyPlayedContext();
    
     //const [playlists, setPlaylists] = useState([]);
     const getUser = async () => {
@@ -89,6 +91,7 @@ const HomeScreen = () => {
             registerForPushNotificationsAsync();
             getLikedSongs();
             getUserXP();
+            getUserSongHistory();
         }
     }, [user]);
     const greetingMessage = () => {
@@ -107,6 +110,24 @@ const HomeScreen = () => {
                 if (res != undefined && res.message != undefined && res.message.toLowerCase().includes('error')) return;
                 setPlaylists(res);
             }).catch((err) => console.log(err));
+    };
+    const playGenre = (genreID, genreName) => {
+        const url = `${apiStart}/Songs/GetGenreSongsWithUserData/GenreID/${genreID}/UserID/${user?.id}`;
+        fetch(url, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+        .then(res => res.json())
+        .then(res => {
+            for (i of res)
+                i.genreName = genreName;
+            updateQueueAndPlay(res[0].songID, res, 0);
+        }).catch((err) => console.log(err));
+    };
+    const getUserSongHistory = () => {
+        const api = `${apiStart}/Users/GetUserSongHistory/UserID/${user?.id}`;
+        fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then(res => res.json())
+            .then(res => {
+                setRecentlyPlayed(res);
+            }).catch(error => console.log(error))
     };
     const playlistsImages = ['https://images.pexels.com/photos/534283/pexels-photo-534283.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
         'https://images.pexels.com/photos/3944091/pexels-photo-3944091.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -165,6 +186,10 @@ const HomeScreen = () => {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>{recommended?.map((item, index) => (
                     <SongCard item={item} key={index} />
                 ))}</ScrollView>
+                <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>Recently Played</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>{recentlyPlayed?.slice(0, 10)?.map((item, index) => (
+                    <SongCard item={item} key={index} />
+                ))}</ScrollView>
                 <View style={{ height: 10 }} />
                 <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>
                     Top Aritsts
@@ -197,6 +222,35 @@ const HomeScreen = () => {
                     <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(5)}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://i.imgur.com/WWn5XN8_d.webp?maxwidth=760&fidelity=grand' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Pop</Text>
+                    </Pressable>
+                </ScrollView>
+                <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>
+                    By Genre
+                </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(10, 'Rock')}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img4.jpg?raw=true' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Rock</Text>
+                    </Pressable>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(1, 'Pop')}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img5.jpg?raw=true' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Pop</Text>
+                    </Pressable>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(2, 'Christmas')}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img1.jpg?raw=true' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Christmas</Text>
+                    </Pressable>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(3, 'Hip Hop')}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img3.jpg?raw=true' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Hip Hop</Text>
+                    </Pressable>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(5, 'Ballad')}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img2.jpg?raw=true' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Ballad</Text>
+                    </Pressable>
+                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(11, 'Funk')}>
+                        <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img6.jpg?raw=true' }} />
+                        <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Funk</Text>
                     </Pressable>
                 </ScrollView>
                 {playlists.length > 0 &&

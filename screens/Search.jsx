@@ -54,7 +54,8 @@ const Search = () => {
                                 performerImage: song.performerImage,
                                 performerName: song.performerName,
                                 songs: 1,
-                                length: convertLengthToSeconds(song.length)
+                                length: convertLengthToSeconds(song.length),
+                                artistLikes: song.songFavorites
                             }
                             artists.push(artist);
                         } else {
@@ -62,6 +63,7 @@ const Search = () => {
                                 if (art.performerID === song.performerID) {
                                     art.songs++;
                                     art.length += convertLengthToSeconds(song.length);
+                                    art.artistLikes += song.songFavorites
                                     break;
                                 }
                             }
@@ -87,12 +89,12 @@ const Search = () => {
         <>
             <LinearGradient colors={["#040306", "#131624"]} style={{ flex: 1 }}>
                 <View style={{ flex: 1, marginTop: 50 }}>
-                    <Pressable style={{ marginHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 9 }}>
-                        <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'white', padding: 10, flex: 1, borderRadius: 7, height: 38 }}>
+                    <View style={{ marginHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 9 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'white', padding: 10, flex: 1, borderRadius: 7, height: 38 }}>
                             <AntDesign name="search1" size={20} color="black" />
-                            <TextInput placeholderTextColor={"black"} value={input} onChangeText={(text) => handleInputChange(text)} placeholder="What do you want to listen to?" style={{ fontWeight: '500', color: 'black' }} />
-                        </Pressable>
-                    </Pressable>
+                            <TextInput placeholderTextColor={"black"} value={input} onChangeText={(text) => handleInputChange(text)} placeholder="What do you want to listen to?" style={{ fontWeight: '500', color: 'black', width: '100%' }} />
+                        </View>
+                    </View>
                     <ScrollView>
                         <View>
                             <View style={{ marginTop: 10, marginHorizontal: 12 }}>
@@ -110,11 +112,14 @@ const Search = () => {
                                                 </View>
                                             </View>
                                         </View>
-                                        <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{track?.songLength}</Text>
+                                        <View>
+                                            <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{track?.songLength}</Text>
+                                            <Text style={{ fontSize: 16, fontWeight: '500', color: "gray", textAlign: 'center' }}>{track?.totalLikes} ♥</Text>
+                                        </View>
                                     </Pressable>
                                 ))}
                                 {queryResult.length === 0 && <Pressable onPress={() => navigation.navigate('Shazam')}>
-                                    <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Shazam Your Song</Text>
+                                    <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>Shazam Your Song</Text>
                                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                                         <Image style={{ width: 150, height: 150 }}
                                             source={{ uri: 'https://cdn.icon-icons.com/icons2/1826/PNG/512/4202070logoshazamsocialsocialmedia-115618_115683.png' }} />
@@ -134,7 +139,10 @@ const Search = () => {
                                                 </View>
                                             </View>
                                         </View>
-                                        <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{ConvertSecondsToLength(artist?.length)}</Text>
+                                        <View>
+                                            <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{ConvertSecondsToLength(artist?.length)}</Text>
+                                            <Text style={{ fontSize: 16, fontWeight: '500', color: "gray", textAlign: 'center' }}>{artist?.artistLikes} ♥</Text>
+                                        </View>
                                     </Pressable>
                                 ))}
                                 {queryResult.length > 0 &&
@@ -151,7 +159,10 @@ const Search = () => {
                                                 </View>
                                             </View>
                                         </View>
-                                        <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{track?.length}</Text>
+                                        <View>
+                                            <Text style={{ fontSize: 16, fontWeight: '500', color: "gray" }}>{track?.length}</Text>
+                                            <Text style={{ fontSize: 16, fontWeight: '500', color: "gray", textAlign: 'center' }}>{track?.songFavorites} ♥</Text>
+                                        </View>
                                     </Pressable>
                                 ))}
                             </View>

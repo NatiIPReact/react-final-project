@@ -31,6 +31,7 @@ import Chat from "./screens/Chat";
 import Leaderboard from "./screens/Leaderboard";
 import PhoneLogin from "./screens/PhoneLogin";
 import Shazam from "./screens/Shazam";
+import SongHistory from "./screens/SongHistory";
 
 const Tab = createBottomTabNavigator();
 
@@ -103,6 +104,7 @@ function Navigation() {
                 <Stack.Screen name="Leaderboard" component={Leaderboard} options={{headerShown:false}}/>
                 <Stack.Screen name="PhoneLogin" component={PhoneLogin} options={{headerShown:false}}/>
                 <Stack.Screen name="Shazam" component={Shazam} options={{headerShown:false}}/>
+                <Stack.Screen name="SongHistory" component={SongHistory} options={{headerShown:false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

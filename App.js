@@ -7,22 +7,25 @@ import { PlaylistsGlobalStateProvider } from './Playlists';
 import { LikedSongsGlobalStateProvider } from './LikedSongs';
 import { XPGlobalStateProvider } from './xp';
 import { RecommendedGlobalStateProvider } from './Recommended';
+import { RecentlyPlayedGlobalStateProvider } from './RecentlyPlayed';
 
 export default function App() {
   return (
     <>
       <RecommendedGlobalStateProvider>
         <XPGlobalStateProvider>
-          <LikedSongsGlobalStateProvider>
-            <PlaylistsGlobalStateProvider>
-              <AudioPlayerContext>
+          <RecentlyPlayedGlobalStateProvider>
+            <LikedSongsGlobalStateProvider>
+              <PlaylistsGlobalStateProvider>
                 <GlobalStateProvider>
-                  <Navigation />
-                  <ModalPortal />
+                  <AudioPlayerContext>
+                    <Navigation />
+                    <ModalPortal />
+                  </AudioPlayerContext>
                 </GlobalStateProvider>
-              </AudioPlayerContext>
-            </PlaylistsGlobalStateProvider>
-          </LikedSongsGlobalStateProvider>
+              </PlaylistsGlobalStateProvider>
+            </LikedSongsGlobalStateProvider>
+          </RecentlyPlayedGlobalStateProvider>
         </XPGlobalStateProvider>
       </RecommendedGlobalStateProvider>
     </>

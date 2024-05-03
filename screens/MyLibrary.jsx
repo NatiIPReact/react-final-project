@@ -9,6 +9,7 @@ import ProfilePicture from '../ProfilePicture';
 import SongModal from '../SongModal';
 import { usePlaylistsContext } from '../Playlists';
 import { useLikedSongsContext } from '../LikedSongs';
+import { useRecentlyPlayedContext } from '../RecentlyPlayed';
 
 const MyLibrary = () => {
   const navigation = useNavigation();
@@ -19,6 +20,8 @@ const MyLibrary = () => {
   const [addPlaylistModalVisible, setAddPlaylistModalVisible] = useState(false);
   const [modalBorderColor, setModalBorderColor] = useState('gray');
   const {likedSongs, setLikedSongs} = useLikedSongsContext();
+  const {recentlyPlayed, setRecentlyPlayed} = useRecentlyPlayedContext();
+  //const [numberOfRecentlyPlayed, setNumberOfRecentlyPlayed] = useState(0);
   const getPlaylists = () => {
     const api = `${apiStart}/Playlists/GetUserPlaylists/UserID/${user.id}`;
     fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
@@ -36,8 +39,17 @@ const MyLibrary = () => {
         setNumberOfLikedSongs(res.totalLikedSongs);
       }).catch((err) => console.log(err));
   };
+  const getNumberOfRecentlyPlayed = async () => {
+    const api = `${apiStart}/Users/GetNumberOfRecentlyPlayed/UserID/${user.id}`;
+    fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+      .then((res) => res.json())
+      .then((res) => {
+        setNumberOfRecentlyPlayed(res.totalRecentlyPlayed);
+      }).catch((err) => console.log(err));
+  };
   useEffect(() => {
     getPlaylists();
+    //getNumberOfRecentlyPlayed();
     //getNumberOfLikedSongs();
     //getLikedSongs();
   }, []);
@@ -107,6 +119,16 @@ const MyLibrary = () => {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <AntDesign name="pushpin" size={18} color="green" />
                 <Text style={{ color: 'white', marginTop: 7 }}>{likedSongs?.length || 0} Songs</Text>
+              </View>
+            </View>
+          </Pressable>
+          <Pressable onPress={() => navigation.navigate('SongHistory')} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 10 }}>
+            <Image style={{ width: 70, height: 70, borderRadius: 4 }} source={{ uri: 'https://s26162.pcdn.co/wp-content/uploads/2019/09/book-with-music-notes-1068x715.jpg' }} />
+            <View>
+              <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>Recently Played</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <AntDesign name="pushpin" size={18} color="green" />
+                <Text style={{ color: 'white', marginTop: 7 }}>{recentlyPlayed?.length || 0} Songs</Text>
               </View>
             </View>
           </Pressable>

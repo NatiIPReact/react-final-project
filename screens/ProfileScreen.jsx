@@ -72,6 +72,7 @@ const ProfileScreen = () => {
               </View>
             </Pressable>
           ))}
+          {playlists.length === 0 && <Text style={{color:'white', fontSize:20,fontWeight:'bold',textAlign:'center'}}>No playlists yet...</Text>}
         </View>
       </ScrollView>
       <SongModal gapValue={85} />

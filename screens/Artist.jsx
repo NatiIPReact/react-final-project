@@ -68,13 +68,23 @@ const Artist = () => {
                 let tmp = [];
                 if (res != undefined && undefined != res._embedded && res._embedded.events != undefined) {
                     for (e of res._embedded.events) {
-                        tmp.push({
-                            name: e.name,
-                            date: e.dates.start.localTime,
-                            location: `${e._embedded.venues[0].country.name}, ${e._embedded.venues[0].city.name}`,
-                            genre: e.classifications[0].genre.name,
-                            url: e.url
-                        });
+                        if (e != undefined && e.name != undefined && e.dates != undefined && e.dates.start != undefined &&
+                            e.dates.start.localTime != undefined && e._embedded != undefined &&
+                            e._embedded.venues != undefined && e._embedded.venues[0] != undefined &&
+                            e._embedded.venues[0].country != undefined && e._embedded.venues[0].country.name != undefined &&
+                            e._embedded.venues[0].city != undefined && e._embedded.venues[0].city.name != undefined &&
+                            e.classifications != undefined && e.classifications[0] != undefined &&
+                            e.classifications[0].genre != undefined && e.classifications[0].genre.name != undefined &&
+                            e.url != undefined) {
+                            let event = {
+                                name: e?.name,
+                                date: e?.dates?.start?.localTime,
+                                location: `${e?._embedded?.venues[0]?.country?.name}, ${e?._embedded?.venues[0]?.city?.name}`,
+                                genre: e?.classifications[0]?.genre?.name,
+                                url: e?.url
+                            };
+                            tmp.push(event);
+                        }
                     }
                     setConcerts([...tmp]);
                 }

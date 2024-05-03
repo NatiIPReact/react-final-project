@@ -13,9 +13,11 @@ import { useLikedSongsContext } from './LikedSongs';
 import * as FileSystem from 'expo-file-system';
 import * as Permissions from 'expo-permissions';
 import { shareAsync } from 'expo-sharing';
+import {Slider} from '@miblanchard/react-native-slider';
+import { useRecommendedContext } from './Recommended';
 
 const SongModal = ({ gapValue }) => {
-    const { audioPlayer, setAudioPlayer, playPreviousTrack, playNextTrack, handlePlayPause, updateTrackIsInFav } = useContext(AudioPlayer);
+    const { audioPlayer, setAudioPlayer, playPreviousTrack, changePosition, playNextTrack, handlePlayPause, updateTrackIsInFav } = useContext(AudioPlayer);
     const [modalVisible, setModalVisible] = useState(false);
     const [addPlaylistModalVisible, setAddPlaylistModalVisible] = useState(false);
     const { playlists, setPlaylists } = usePlaylistsContext();
@@ -24,6 +26,7 @@ const SongModal = ({ gapValue }) => {
     const navigation = useNavigation();
     const [showLyricsVisible, setShowLyricsVisible] = useState(false);
     const { likedSongs, setLikedSongs } = useLikedSongsContext();
+    const { recommended, setRecommended } = useRecommendedContext();
     const circleSize = 12;
     const getPlaylists = () => {
         const api = `${apiStart}/Playlists/GetUserPlaylists/UserID/${user?.id}`;
@@ -76,6 +79,14 @@ const SongModal = ({ gapValue }) => {
                     }
                 }
                 setLikedSongs([...tmp])
+                let tmp2 = [...recommended];
+                for (song of tmp2) {
+                    if (song.songID === songID) {
+                        song.totalLikes--;
+                        break;
+                    }
+                }
+                setRecommended([...tmp2])
             })
             .catch(e => console.log(e))
     };
@@ -87,6 +98,14 @@ const SongModal = ({ gapValue }) => {
                 updateTrackIsInFav();
                 if (res?.songID === songID) {
                     setLikedSongs([...likedSongs, res]);
+                    let tmp2 = [...recommended];
+                    for (song of tmp2) {
+                        if (song.songID === songID) {
+                            song.totalLikes++;
+                            break;
+                        }
+                    }
+                    setRecommended([...tmp2])
                 }
             })
             .catch(e => console.log(e))
@@ -164,6 +183,9 @@ const SongModal = ({ gapValue }) => {
                 console.error(error);
             });
     }
+    const jumpSongSection = (value) => {
+        changePosition(value);
+    };
     return (
         <>
             {audioPlayer.currentTrack && (
@@ -219,6 +241,7 @@ const SongModal = ({ gapValue }) => {
                                         <Text style={{ marginTop: 4, color: '#D3D3D3' }}>{audioPlayer?.currentTrack?.performerName}</Text>
                                     </Pressable>
                                 </View>
+                                {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
                                 <View style={{ flexDirection: 'row' }}>
                                     <Pressable onPress={downloadSong}>
                                         <EvilIcons name='arrow-down' size={31} color='#1DB954' />
@@ -227,9 +250,10 @@ const SongModal = ({ gapValue }) => {
                                         <View>
                                             {audioPlayer?.currentTrack?.isInFav == 1 ? <AntDesign onPress={() => deleteFromFavorites(audioPlayer?.currentTrack?.songID)} name="heart" size={24} color="#1DB954" />
                                                 : <AntDesign onPress={() => addToFavorites(audioPlayer?.currentTrack?.songID)} name="hearto" size={24} color="#1DB954" />}</View>}
-                                </View>
+                                </View>}
                             </View>
                             <View style={{ marginTop: 10 }}>
+                                {((audioPlayer?.currentTrack?.isRadioStation === true)) &&
                                 <View style={{ width: '100%', marginTop: 10, height: 3, backgroundColor: 'gray', borderRadius: 5 }}>
                                     <View style={[styles.progressbar, { width: `${audioPlayer.progress * 100}%` }]} />
                                     <View style={[
@@ -238,11 +262,14 @@ const SongModal = ({ gapValue }) => {
                                             backgroundColor: 'white'
                                         }, { left: `${audioPlayer.progress * 100}%`, marginLeft: -circleSize / 2 }
                                     ]} />
-                                </View>
+                                </View>}
+                                {(!(audioPlayer?.currentTrack?.isRadioStation === true)) &&
+                                <Slider onSlidingComplete={jumpSongSection} value={audioPlayer.progress} thumbTintColor='white' minimumTrackTintColor='white' maximumTrackTintColor='gray' />
+                                }
                                 <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <Text style={{ color: '#D3D3D3', fontSize: 15 }}>{formatTime(audioPlayer.currentTime)}</Text>
 
-                                    <Text style={{ color: '#D3D3D3', fontSize: 15 }}>{formatTime(audioPlayer.totalDuration === null ? 0 : audioPlayer.totalDuration)}</Text>
+                                    <Text style={{ color: '#D3D3D3', fontSize: 15 }}>{(!(audioPlayer?.currentTrack?.isRadioStation === true)) ? formatTime(audioPlayer.totalDuration === null ? 0 : audioPlayer.totalDuration) : 'Live'}</Text>
                                 </View>
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 17 }}>

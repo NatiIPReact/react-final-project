@@ -78,6 +78,7 @@ const Playlist = () => {
     fetchPlaylistSongs();
   }, []);
   const playSong = (songID = 0, ind = -1) => {
+    console.log(tracks[0])
     if (tracks.length === 0) {
       return;
     }
@@ -143,8 +144,8 @@ const Playlist = () => {
           </View>
         </View>
       </ScrollView>
-      <SongModal gapValue={25} />
       <View style={{height:audioPlayer.currentTrack == null ? 0 : 95}}></View>
+      <SongModal gapValue={25} />
     </LinearGradient>
   )
 }
