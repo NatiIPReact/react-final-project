@@ -186,7 +186,9 @@ const HomeScreen = () => {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>{recommended?.map((item, index) => (
                     <SongCard item={item} key={index} />
                 ))}</ScrollView>
+                {recentlyPlayed?.length > 0 &&
                 <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>Recently Played</Text>
+                }
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>{recentlyPlayed?.slice(0, 10)?.map((item, index) => (
                     <SongCard item={item} key={index} />
                 ))}</ScrollView>

@@ -7,6 +7,7 @@ const AudioPlayer = createContext();
 const AudioPlayerContext = ({ children }) => {
     const { user, setUser } = useGlobalState();
     const { recentlyPlayed, setRecentlyPlayed } = useRecentlyPlayedContext();
+    const [timeSinceLastUpdate, setTimeSinceLastUpdate] = useState(0);
     const playFirstInQueue = async () => {
         await updateQueueAndPlay(audioPlayer.songQueue[0].songID);
     };
@@ -116,7 +117,7 @@ const AudioPlayerContext = ({ children }) => {
         if (audioPlayer && audioPlayer.currentSound) {
             const newPosition = parseInt(audioPlayer.totalDuration * newPositionZeroToOne);
             try {
-                await audioPlayer.currentSound.setPositionAsync(newPosition)
+                await audioPlayer.currentSound.setPositionAsync(newPosition, {toleranceMillisBefore: 2000, toleranceMillisAfter: 2000})
             }
             catch (e) {
                 console.log(e)
@@ -131,9 +132,18 @@ const AudioPlayerContext = ({ children }) => {
             }
             await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: false, shouldDuckAndroid: false });
             const { sound, status } = await Audio.Sound.createAsync({ uri: songURL }, { shouldPlay: true, isLooping: false }, onPlaybackStatusUpdate);
+            const api = `${apiStart}/Users/GetLastPositionInSong/UserID/${user?.id}/SongID/${nextTrack.songID}`;
             onPlaybackStatusUpdate(status);
             setAudioPlayer(prevState => ({ ...prevState, isPlaying: status.isLoaded, currentSound: sound }))
-            await sound.playAsync();
+            fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then(res => res.json()).then(async res => {
+                if (res != undefined && res.position != undefined) {
+                    await sound.playFromPositionAsync(res.position, {toleranceMillisBefore: 2000, toleranceMillisAfter: 2000});
+                }
+                else await sound.playAsync();
+            }).catch(async res => {
+                await sound.playAsync();
+            });
             const recentlyPlayedURL = `${apiStart}/Users/PostUserRecentlyPlayed/UserID/${user?.id}/SongID/${nextTrack?.songID}`;
             fetch(recentlyPlayedURL, { method: "POST", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             let isInRecentlyPlayed = false;
@@ -162,6 +172,8 @@ const AudioPlayerContext = ({ children }) => {
             setAudioPlayer(prevState => ({ ...prevState, progress: progress, currentTime: status.positionMillis }))
         }
         if (status.didJustFinish === true) {
+            const api = `${apiStart}/Users/UpdateUserPositionInSong/UserID/${user?.id}/SongID/${audioPlayer?.currentTrack?.songID}/Position/${0}`;
+            fetch(api, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             setAudioPlayer(prevState => ({ ...prevState, currentSound: null }))
             playNextTrack();
         }
@@ -244,7 +256,18 @@ const AudioPlayerContext = ({ children }) => {
         if (audioPlayer.totalDuration !== null) {
             play(audioPlayer.songQueue[audioPlayer.currentInQueue]);
         }
-    }, [audioPlayer.totalDuration])
+    }, [audioPlayer.totalDuration]);
+    useEffect(() => {
+        if ((!(audioPlayer?.currentTrack?.isRadioStation === true)) && timeSinceLastUpdate <= 10000)
+            setTimeSinceLastUpdate(prevState => prevState + 500);
+    }, [audioPlayer.currentTime])
+    useEffect(() => {
+        if (timeSinceLastUpdate > 10000) {
+            const api = `${apiStart}/Users/UpdateUserPositionInSong/UserID/${user?.id}/SongID/${audioPlayer?.currentTrack?.songID}/Position/${parseInt(audioPlayer?.currentTime)}`;
+            fetch(api, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            setTimeSinceLastUpdate(0);
+        }
+    }, [timeSinceLastUpdate])
     const playPreviousTrack = async () => {
         if (audioPlayer?.currentTrack?.isRadioStation === true) {
             return;

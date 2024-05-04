@@ -331,6 +331,9 @@ const SongModal = ({ gapValue }) => {
                                     {playlists && playlists?.map((p, index) => (
                                         <Pressable key={index} onPress={() => addSongToPlaylist(p?.id)}><Text style={{ textAlign: 'center', color: 'black', fontSize: 20, margin: 5 }}>{p?.name}</Text></Pressable>
                                     ))}
+                                    {
+                                        playlists && playlists?.length === 0 && <Text style={{fontSize:20, fontWeight:'500',textAlign:'center'}}>You don't have any playlists</Text>
+                                    }
                                     {message != '' && <Text style={{ color: message === "Success!" ? 'green' : 'red', fontSize: 28, textAlign: 'center' }}>{message}</Text>}
                                 </View>
                             </View>
