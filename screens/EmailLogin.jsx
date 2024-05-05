@@ -118,6 +118,16 @@ const EmailLogin = () => {
                         <TouchableOpacity style={styles.loginButton} onPress={Login}>
                             <Text style={styles.buttonText}>Login</Text>
                         </TouchableOpacity>
+                        <TouchableOpacity style={{
+                            backgroundColor: '#6247aa',
+                            borderRadius: 5,
+                            paddingVertical: 15,
+                            alignItems: 'center',
+                            width: '100%',
+                            marginTop: 10
+                        }} onPress={()=>navigation.navigate('ForgotPassword')} >
+                            <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Forgot Password</Text>
+                        </TouchableOpacity>
                         <Text style={{ color: 'red', fontSize: 23, marginTop: 5, display: errorMessage ? 'flex' : 'none' }}>{errorMessage}</Text>
                     </View>
                 </View>

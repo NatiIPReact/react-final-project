@@ -193,7 +193,7 @@ const Playlist = () => {
                     </View>
                   </View>
                 </View>
-                <Pressable onPress={() => removeFromPlaylist(track?.songID)} style={{ marginRight: 5, justifyContent: 'center', width:100 }}>
+                <Pressable onPress={() => removeFromPlaylist(track?.songID)} style={{ marginRight: 5, justifyContent: 'center' }}>
                   <FontAwesome name='remove' size={24} color="white" />
                 </Pressable>
               </Pressable>

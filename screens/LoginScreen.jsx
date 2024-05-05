@@ -99,6 +99,10 @@ const LoginScreen = () => {
                                 }).catch(e => console.log(e));
                             return;
                         }
+                        if (res?.isBanned === true) {
+                            setErrorMessage(`You're Banned!`);
+                            return;
+                        }
                         setErrorMessage('');
                         const userAsJSON = JSON.stringify(res);
                         registerForPushNotificationsAsync().then(token => {

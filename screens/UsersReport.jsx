@@ -14,7 +14,6 @@ const UsersReport = () => {
         fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             .then(res => res.json())
             .then(res => {
-                // console.log(res)
                 setSongsData(res);
             }).catch(e => console.log(e))
     }, [])
@@ -31,7 +30,6 @@ const UsersReport = () => {
             let tmp = [...songsData];
             tmp[index].isBanned = !isBanned;
             setSongsData([...tmp]);
-            console.log(tmp[index].isBanned)
         })
         .catch(e => console.log(e))
     };

@@ -13,7 +13,7 @@ const PhoneLogin = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [sendButtonText, setSendButtonText] = useState('Send Verification Code')
-    const [textInputPlaceholderText, setTextInputPlaceholderText] = useState('Phone Number');
+    const [textInputPlaceholderText, setTextInputPlaceholderText] = useState('Phone Number (With Country Code)');
     const [storePhone, setStorePhone] = useState('');
     const sendCode = () => {
         if (name === "") {
@@ -54,6 +54,10 @@ const PhoneLogin = () => {
                     fetch(userAPI, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
                         .then(res => res.json())
                         .then(res => {
+                            if (res?.isBanned === true) {
+                                setErrorMessage(`You're Banned!`);
+                                return;
+                            }
                             const userAsJSON = JSON.stringify(res);
                             registerForPushNotificationsAsync().then(token => {
                                 const api = `${apiStart}/Users/UpdateUserExpoToken/UserID/${res.id}/ExpoToken/${token}`;

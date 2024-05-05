@@ -187,6 +187,11 @@ const SongModal = ({ gapValue }) => {
     const jumpSongSection = (value) => {
         changePosition(value);
     };
+    const pauseSongIfPlaying = async () => {
+        if (audioPlayer?.isPlaying === true) {
+            await handlePlayPause();
+        }
+    };
     return (
         <>
             {audioPlayer.currentTrack && (
@@ -313,7 +318,7 @@ const SongModal = ({ gapValue }) => {
                     </View>
                 </ModalContent>
             </BottomModal>
-            {showLyricsVisible && <LyricsOverlay song={audioPlayer.currentTrack} hideLyricsModal={hideLyricsModal} />}
+            {showLyricsVisible && <LyricsOverlay song={audioPlayer.currentTrack} hideLyricsModal={hideLyricsModal} pauseSong={pauseSongIfPlaying} />}
             {addPlaylistModalVisible === true && (
                 <View style={{ flex: 1 }}>
                     <Modal
