@@ -7,7 +7,7 @@ import { useGlobalState } from '../components/user';
 import { apiStart } from '../api';
 import { ScrollView } from 'react-native';
 import SongModal from '../SongModal';
-
+// This is the playing quiz page.
 const PlayQuiz = () => {
     const navigation = useNavigation();
     const { user, setUser } = useGlobalState();

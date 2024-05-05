@@ -9,7 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import ProfilePicture from '../ProfilePicture';
 import * as FileSystem from 'expo-file-system';
 import SongModal from '../SongModal';
-
+// This is the edit profile page.
 const EditProfile = () => {
     const navigation = useNavigation();
     const { user, setUser } = useGlobalState();

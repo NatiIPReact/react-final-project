@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native'
 import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import { useGlobalState } from '../components/user';
 import { apiStart } from '../api';
-
+// This is the contact us page.
 const ContactUs = () => {
     const navigation = useNavigation();
     const { user, setUser } = useGlobalState();

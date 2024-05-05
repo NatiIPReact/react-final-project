@@ -12,7 +12,7 @@ import { AudioPlayer } from '../AudioPlayer';
 import { debounce } from 'lodash';
 import SongModal from '../SongModal';
 import { useLikedSongsContext } from '../LikedSongs';
-
+// This is the liked songs screen.
 const LikedSongsScreen = () => {
     const { audioPlayer, setAudioPlayer, updateQueueAndPlay, shuffleQueue, updateTrackIsInFav } = useContext(AudioPlayer);
     const [searchedTracks, setSearchedTracks] = useState([]);

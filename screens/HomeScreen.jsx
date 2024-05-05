@@ -19,7 +19,7 @@ import { useLikedSongsContext } from '../LikedSongs'
 import {useXPContext} from '../xp'
 import { useRecommendedContext } from '../Recommended'
 import { useRecentlyPlayedContext } from '../RecentlyPlayed'
-
+// This is the home page.
 const HomeScreen = () => {
     //const [featuredSongs, setFeaturedSongs] = useState([]);
     const { recommended, setRecommended } = useRecommendedContext();

@@ -7,7 +7,7 @@ import { getDatabase, ref, push, onValue, off } from 'firebase/database';
 import 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
-
+// This is the public chat's page. Using Firebase real time database.
 const firebaseConfig = {
   apiKey: "AIzaSyAR8fZvrfGOqygweDnWVmWsQkjmnXYSLbs",
   authDomain: "bennysfinalproject.firebaseapp.com",

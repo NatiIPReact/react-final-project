@@ -9,7 +9,7 @@ import hmacSHA1 from 'crypto-js/hmac-sha1';
 import Base64 from 'crypto-js/enc-base64';
 import { AudioPlayer } from '../AudioPlayer';
 import { ShazamAccessKey, ShazamSecret } from '../apikeys';
-
+// This is the Shazam page.
 const defaultOptions = {
     host: 'identify-ap-southeast-1.acrcloud.com',
     endpoint: '/v1/identify',

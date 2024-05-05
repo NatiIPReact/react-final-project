@@ -10,7 +10,7 @@ import { useGlobalState } from '../components/user';
 import SongModal from '../SongModal';
 import { Button } from '@rneui/themed';
 import { TicketMasterAPIKey } from '../apikeys';
-
+// This is the artist's page - includes data like the his songs, instagram, followers, comments, etc.
 const Artist = () => {
     const { user, setUser } = useGlobalState();
     const route = useRoute();

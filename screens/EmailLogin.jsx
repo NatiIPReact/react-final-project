@@ -8,7 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import { apiStart } from '../api'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import registerForPushNotificationsAsync from '../NotificationComponent';
-
+// This is the login with email page.
 const EmailLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

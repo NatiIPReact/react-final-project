@@ -8,7 +8,7 @@ import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import { Buffer } from 'buffer';
 import { apiStart } from '../api';
 import registerForPushNotificationsAsync from '../NotificationComponent';
-
+// This is the login screen, let's you choose between different types of login.
 const discovery = {
     authorizationEndpoint: 'https://accounts.spotify.com/authorize',
     tokenEndpoint: 'https://accounts.spotify.com/api/token',

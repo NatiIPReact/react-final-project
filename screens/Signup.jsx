@@ -7,7 +7,7 @@ import { TextInput } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import { apiStart } from '../api'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+// This is the email's signup page.
 const Signup = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');

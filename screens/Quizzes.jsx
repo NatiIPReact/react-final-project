@@ -8,7 +8,7 @@ import { apiStart } from '../api';
 import { useGlobalState } from '../components/user';
 import SongModal from '../SongModal';
 import { useXPContext } from '../xp';
-
+// This is the quizzes page.
 const Quizzes = () => {
     const quizImages = ['https://images.pexels.com/photos/1670977/pexels-photo-1670977.jpeg',
         'https://images.pexels.com/photos/256417/pexels-photo-256417.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',

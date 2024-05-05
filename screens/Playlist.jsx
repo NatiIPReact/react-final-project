@@ -7,7 +7,7 @@ import { Ionicons, Entypo, AntDesign, FontAwesome, Feather } from '@expo/vector-
 import SongModal from '../SongModal';
 import { AudioPlayer } from '../AudioPlayer';
 import { usePlaylistsContext } from '../Playlists';
-
+// This is the specific playlist page.
 const Playlist = () => {
   const route = useRoute();
   const [tracks, setTracks] = useState([]);

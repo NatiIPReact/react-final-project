@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { apiStart } from '../api';
 import { ScrollView } from 'react-native';
-
+// This is the user's report (for admins)
 const UsersReport = () => {
     const navigation = useNavigation();
     const [songsData, setSongsData] = useState([]);

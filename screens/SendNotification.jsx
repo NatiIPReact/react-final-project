@@ -6,7 +6,7 @@ import { AntDesign, Ionicons, FontAwesome } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import registerForPushNotificationsAsync from '../NotificationComponent';
 import { apiStart } from '../api';
-
+// This is the send push notification page (for admins)
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
         shouldShowAlert: true,

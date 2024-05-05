@@ -7,7 +7,7 @@ import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import { apiStart } from '../api'
 import { ScrollView } from 'react-native'
 import SongModal from '../SongModal'
-
+// This is a page showing the result of an old quiz.
 const HistoricQuiz = () => {
     const route = useRoute();
     const [quiz, setQuiz] = useState(null);

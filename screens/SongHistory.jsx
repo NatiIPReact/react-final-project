@@ -8,7 +8,7 @@ import { AudioPlayer } from '../AudioPlayer'
 import { useGlobalState } from '../components/user'
 import { apiStart } from '../api'
 import { useRecentlyPlayedContext } from '../RecentlyPlayed'
-
+// This is the recently played page.
 const SongHistory = () => {
     const navigation = useNavigation()
     const { audioPlayer, setAudioPlayer, updateQueueAndPlay } = useContext(AudioPlayer);

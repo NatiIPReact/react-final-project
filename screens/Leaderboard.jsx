@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import { Ionicons, Entypo, AntDesign, Fontisto } from '@expo/vector-icons';
 import ProfilePicture from '../ProfilePicture'
 import { useGlobalState } from '../components/user'
-
+// This is the leaderboard page.
 const Leaderboard = () => {
     const [data, setData] = useState([]);
     const [playerDataModalVisible, setPlayerDataModalVisible] = useState({ visible: false, playerData: null });

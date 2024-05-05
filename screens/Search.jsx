@@ -13,7 +13,7 @@ import { useRecommendedContext } from '../Recommended';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import { GoogleAPIKey } from '../apikeys';
-
+// This is the searching page.
 const recordingOptions = {
     // android not currently in use, but parameters are required
     android: {

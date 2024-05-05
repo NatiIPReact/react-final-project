@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { apiStart } from '../api';
 import registerForPushNotificationsAsync from '../NotificationComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+// This is the phone login page
 const PhoneLogin = () => {
     const navigation = useNavigation();
     const [name, setName] = useState('');

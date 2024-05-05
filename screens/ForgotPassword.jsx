@@ -8,7 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import { apiStart } from '../api'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import registerForPushNotificationsAsync from '../NotificationComponent';
-
+// This is the forgot password page.
 const ForgotPassword = () => {
     const navigation = useNavigation();
     const [email, setEmail] = useState('');

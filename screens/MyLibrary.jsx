@@ -10,7 +10,7 @@ import SongModal from '../SongModal';
 import { usePlaylistsContext } from '../Playlists';
 import { useLikedSongsContext } from '../LikedSongs';
 import { useRecentlyPlayedContext } from '../RecentlyPlayed';
-
+// This is the my library page
 const MyLibrary = () => {
   const navigation = useNavigation();
   const { user, setUser } = useGlobalState();

@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native'
 import { usePlaylistsContext } from '../Playlists'
 import { AudioPlayer } from '../AudioPlayer'
 import { useXPContext } from '../xp'
-
+// This is the profile screen.
 const ProfileScreen = () => {
   const { user, setUser } = useGlobalState();
   const navigation = useNavigation();

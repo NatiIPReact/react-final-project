@@ -4,7 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { apiStart } from '../api';
-
+// This is the spotify signup page.
 const SpotifySignup = () => {
     const route = useRoute();
     const navigation = useNavigation();
