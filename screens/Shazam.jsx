@@ -24,7 +24,7 @@ const Shazam = () => {
     const navigation = useNavigation();
     const [listening, setListening] = useState(false);
     const [recording, setRecording] = useState();
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState('Press to start...');
     const [permissionResponse, requestPermission] = Audio.usePermissions();
     const [shazamRes, setShazamRes] = useState(null);
     const { audioPlayer, setAudioPlayer, handlePlayPause } = useContext(AudioPlayer);
@@ -116,6 +116,7 @@ const Shazam = () => {
         }
     };
     async function identify(uri, options) {
+        setMessage('Thinking...');
         var current_data = new Date();
         var timestamp = current_data.getTime() / 1000;
         var stringToSign = buildStringToSign(

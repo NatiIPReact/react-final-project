@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { TouchableOpacity } from 'react-native'
@@ -7,12 +7,14 @@ import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import { apiStart } from '../api'
 import { ScrollView } from 'react-native'
 import SongModal from '../SongModal'
+import { AudioPlayer } from '../AudioPlayer'
 // This is a page showing the result of an old quiz.
 const HistoricQuiz = () => {
     const route = useRoute();
     const [quiz, setQuiz] = useState(null);
     const [quizData, setQuizData] = useState(null);
     const navigation = useNavigation();
+    const { audioPlayer, setAudioPlayer } = useContext(AudioPlayer);
     useEffect(() => {
         if (route?.params?.item == null) {
             route.goBack();
@@ -20,14 +22,14 @@ const HistoricQuiz = () => {
         }
         setQuiz(route.params.item);
         const api = `${apiStart}/Quizs/GetQuizQuestions/QuizID/${route.params.item.quizID}`;
-        fetch(api, {method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' })})
-        .then((res) => res.json())
-        .then((res) => {
-            setQuizData(res);
-        }).catch(e => {
-            console.log(e)
-            navigation.goBack();
-        })
+        fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+            .then((res) => res.json())
+            .then((res) => {
+                setQuizData(res);
+            }).catch(e => {
+                console.log(e)
+                navigation.goBack();
+            })
     }, []);
     const calculateColor = (userAnswer, answer, correctAnswer) => {
         if (userAnswer !== correctAnswer && answer === correctAnswer) {
@@ -49,20 +51,23 @@ const HistoricQuiz = () => {
                 </TouchableOpacity>
                 <Text style={styles.quizText}>Quiz Results</Text>
             </View>
-            <Text style={{color:'white',textAlign:'center',fontWeight:'bold',fontSize:20,margin:10}}>Quiz Grade: {quiz?.quizGrade}%</Text>
-            <Text style={{color:'white',textAlign:'center',fontWeight:'bold',fontSize:20,margin:10}}>Played On: {quiz?.quizDate?.split('T')[0]}</Text>
-            <ScrollView style={{textAlign:'center'}}>
-                {quizData != null && quizData?.questions?.map((question,index) => {return (
-                    <View key={index + 1} style={{textAlign:'center',margin:5}}>
-                        <Text style={{color:'white',textAlign:'center',fontWeight:'bold',fontSize:18}}>Question {index + 1}</Text>
-                        <Text style={{color:'wheat',textAlign:'center',fontSize:15,fontWeight:'400'}}>{question?.content}</Text>
-                        {question?.answers?.map((answer,ind) => {
-                            return (
-                                <Text key={ind} style={{color:'white',textAlign:'center',fontSize:16,margin:2,backgroundColor:calculateColor(question.userAnswer,ind,question.correctAnswer)}}>{String.fromCharCode(index + 97)}) {answer}{calculateEmoji(question.userAnswer,ind,question.correctAnswer)}</Text>
-                            )
-                        })}
-                    </View>
-                )})}
+            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: 20, margin: 10 }}>Quiz Grade: {quiz?.quizGrade}%</Text>
+            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: 20, margin: 10 }}>Played On: {quiz?.quizDate?.split('T')[0]}</Text>
+            <ScrollView style={{ textAlign: 'center' }}>
+                {quizData != null && quizData?.questions?.map((question, index) => {
+                    return (
+                        <View key={index + 1} style={{ textAlign: 'center', margin: 5 }}>
+                            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: 18 }}>Question {index + 1}</Text>
+                            <Text style={{ color: 'wheat', textAlign: 'center', fontSize: 15, fontWeight: '400' }}>{question?.content}</Text>
+                            {question?.answers?.map((answer, ind) => {
+                                return (
+                                    <Text key={ind} style={{ color: 'white', textAlign: 'center', fontSize: 16, margin: 2, backgroundColor: calculateColor(question.userAnswer, ind, question.correctAnswer) }}>{String.fromCharCode(index + 97)}) {answer}{calculateEmoji(question.userAnswer, ind, question.correctAnswer)}</Text>
+                                )
+                            })}
+                        </View>
+                    )
+                })}
+                <View style={{ height: audioPlayer?.currentTrack ? 110 : 0 }}></View>
             </ScrollView>
             <SongModal gapValue={25} />
         </LinearGradient>

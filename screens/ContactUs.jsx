@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native'
 import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import { useGlobalState } from '../components/user';
 import { apiStart } from '../api';
+import SongModal from '../SongModal';
 // This is the contact us page.
 const ContactUs = () => {
     const navigation = useNavigation();
@@ -71,6 +72,7 @@ const ContactUs = () => {
                     <Text style={{ color: 'green', fontSize: 23, marginTop: 5, display: successMessage ? 'flex' : 'none' }}>{successMessage}</Text>
                 </View>
             </View>
+            <SongModal gapValue={25} />
         </LinearGradient>
   )
 }

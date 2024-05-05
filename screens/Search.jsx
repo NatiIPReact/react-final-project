@@ -220,7 +220,7 @@ const Search = () => {
                                     </Pressable>
                                 ))}
                                 {queryResult.length === 0 && !input && <Pressable onPress={() => navigation.navigate('Shazam')}>
-                                    <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>Shazam Your Song</Text>
+                                    <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold', marginBottom: audioPlayer?.currentTrack ? 8 : 15 }}>Shazam Your Song</Text>
                                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                                         <Image style={{ width: 150, height: 150 }}
                                             source={{ uri: 'https://cdn.icon-icons.com/icons2/1826/PNG/512/4202070logoshazamsocialsocialmedia-115618_115683.png' }} />
