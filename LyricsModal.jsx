@@ -49,7 +49,7 @@ const LyricsOverlay = ({ song, hideLyricsModal, pauseSong }) => {
             </ScrollView>
             <Pressable
               style={styles.closeButton}
-              onPress={() => hideLyricsModal()}
+                onPress={() => {hideLyricsModal(); if (isSpeaking) stopSpeech(); }}
             >
               <Text style={styles.closeButtonText}>×</Text>
             </Pressable>

@@ -11,7 +11,7 @@ const AudioPlayerContext = ({ children }) => {
     const playFirstInQueue = async () => {
         await updateQueueAndPlay(audioPlayer.songQueue[0].songID);
     };
-    const updateQueueAndPlay = async (songID,/*updateID = false,*/ songQueue = null, curr = 0) => {
+    const updateQueueAndPlay = async (songID,/*updateID = false,*/ songQueue = null, curr = 0, positionToPlay = -1) => {
         /*
         if (updateID === true) {
             for (i in audioPlayer.songQueue) {
@@ -28,7 +28,8 @@ const AudioPlayerContext = ({ children }) => {
                 if (songQueue == null) {
                     setAudioPlayer(prevState => ({
                         ...prevState, totalDuration: response.songDuration
-                        , currentTrack: audioPlayer.songQueue[audioPlayer.currentInQueue]
+                        , currentTrack: audioPlayer.songQueue[audioPlayer.currentInQueue],
+                        positionToPlay:positionToPlay
                     }))
                     return;
                 }
@@ -37,19 +38,21 @@ const AudioPlayerContext = ({ children }) => {
                     currentInQueue: audioPlayer.currentInQueue,
                     songQueue: songQueue,
                     currentInQueue: curr,
-                    currentTrack: songQueue[curr]
+                    currentTrack: songQueue[curr],
+                    positionToPlay:positionToPlay
                 }))
             })
             .catch((e) => {
                 if (songQueue == null) {
-                    setAudioPlayer(prevState => ({ ...prevState, totalDuration: 240000, currentInQueue: audioPlayer.currentInQueue }))
+                    setAudioPlayer(prevState => ({ ...prevState, totalDuration: 240000, currentInQueue: audioPlayer.currentInQueue, positionToPlay:positionToPlay }))
                     return;
                 }
                 setAudioPlayer(prevState => ({
                     ...prevState, totalDuration: 240000,
                     currentInQueue: audioPlayer.currentInQueue,
                     songQueue: songQueue,
-                    currentInQueue: curr
+                    currentInQueue: curr,
+                    positionToPlay:positionToPlay
                 }))
             })
     };
@@ -117,7 +120,7 @@ const AudioPlayerContext = ({ children }) => {
         if (audioPlayer && audioPlayer.currentSound) {
             const newPosition = parseInt(audioPlayer.totalDuration * newPositionZeroToOne);
             try {
-                await audioPlayer.currentSound.setPositionAsync(newPosition, {toleranceMillisBefore: 2000, toleranceMillisAfter: 2000})
+                await audioPlayer.currentSound.setPositionAsync(newPosition, { toleranceMillisBefore: 2000, toleranceMillisAfter: 2000 })
             }
             catch (e) {
                 console.log(e)
@@ -135,15 +138,19 @@ const AudioPlayerContext = ({ children }) => {
             const api = `${apiStart}/Users/GetLastPositionInSong/UserID/${user?.id}/SongID/${nextTrack.songID}`;
             onPlaybackStatusUpdate(status);
             setAudioPlayer(prevState => ({ ...prevState, isPlaying: status.isLoaded, currentSound: sound }))
-            fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
-            .then(res => res.json()).then(async res => {
-                if (res != undefined && res.position != undefined) {
-                    await sound.playFromPositionAsync(res.position, {toleranceMillisBefore: 2000, toleranceMillisAfter: 2000});
-                }
-                else await sound.playAsync();
-            }).catch(async res => {
-                await sound.playAsync();
-            });
+            if (audioPlayer?.positionToPlay == undefined || audioPlayer?.positionToPlay == null || audioPlayer?.positionToPlay === -1) {
+                fetch(api, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
+                .then(res => res.json()).then(async res => {
+                    if (res != undefined && res.position != undefined) {
+                        await sound.playFromPositionAsync(res.position, { toleranceMillisBefore: 2000, toleranceMillisAfter: 2000 });
+                    }
+                    else await sound.playAsync();
+                }).catch(async res => {
+                    await sound.playAsync();
+                });
+            } else {
+                await sound.playFromPositionAsync(audioPlayer?.positionToPlay, { toleranceMillisBefore: 2000, toleranceMillisAfter: 2000 });
+            }
             const recentlyPlayedURL = `${apiStart}/Users/PostUserRecentlyPlayed/UserID/${user?.id}/SongID/${nextTrack?.songID}`;
             fetch(recentlyPlayedURL, { method: "POST", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
             let isInRecentlyPlayed = false;
@@ -174,7 +181,7 @@ const AudioPlayerContext = ({ children }) => {
         if (status.didJustFinish === true) {
             const api = `${apiStart}/Users/UpdateUserPositionInSong/UserID/${user?.id}/SongID/${audioPlayer?.currentTrack?.songID}/Position/${0}`;
             fetch(api, { method: "PUT", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
-            setAudioPlayer(prevState => ({ ...prevState, currentSound: null }))
+            setAudioPlayer(prevState => ({ ...prevState, currentSound: null, isPlaying: false }))
             playNextTrack();
         }
     };

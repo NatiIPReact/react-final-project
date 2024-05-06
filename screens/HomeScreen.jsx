@@ -11,12 +11,12 @@ import { useNavigation } from "@react-navigation/native";
 import { useGlobalState } from '../components/user'
 import ProfilePicture from '../ProfilePicture'
 import SongModal from '../SongModal'
-import { AntDesign, MaterialIcons, Entypo, Fontisto } from '@expo/vector-icons'
+import { AntDesign, MaterialIcons, Entypo, Fontisto, FontAwesome5 } from '@expo/vector-icons'
 import { AudioPlayer } from '../AudioPlayer'
 import { usePlaylistsContext } from '../Playlists'
 import registerForPushNotificationsAsync from '../NotificationComponent'
 import { useLikedSongsContext } from '../LikedSongs'
-import {useXPContext} from '../xp'
+import { useXPContext } from '../xp'
 import { useRecommendedContext } from '../Recommended'
 import { useRecentlyPlayedContext } from '../RecentlyPlayed'
 // This is the home page.
@@ -29,10 +29,10 @@ const HomeScreen = () => {
     const { xp, setXP } = useXPContext();
     const [message, setMessage] = useState('');
     const navigation = useNavigation();
-    const {playlists, setPlaylists} = usePlaylistsContext();
-    const {likedSongs, setLikedSongs} = useLikedSongsContext();
-    const {recentlyPlayed, setRecentlyPlayed} = useRecentlyPlayedContext();
-   
+    const { playlists, setPlaylists } = usePlaylistsContext();
+    const { likedSongs, setLikedSongs } = useLikedSongsContext();
+    const { recentlyPlayed, setRecentlyPlayed } = useRecentlyPlayedContext();
+
     //const [playlists, setPlaylists] = useState([]);
     const getUser = async () => {
         try {
@@ -64,21 +64,21 @@ const HomeScreen = () => {
     async function getLikedSongs() {
         const api = `${apiStart}/Users/GetUserFavorites/UserID/${user.id}`;
         fetch(api, { method: 'GET', headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
-          .then((res) => res.json())
-          .then((songs) => {
-            setLikedSongs(songs);
-          }).catch((e) => console.log(e));
-      }
-      const getUserXP = () => {
+            .then((res) => res.json())
+            .then((songs) => {
+                setLikedSongs(songs);
+            }).catch((e) => console.log(e));
+    }
+    const getUserXP = () => {
         const api = `${apiStart}/Users/GetUserXP/UserID/${user?.id}`;
         fetch(api, { method: 'GET', headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
-        .then((res) => res.json())
-        .then(res => {
-            if (res != undefined && res.userXP != undefined) {
-                setXP(res.userXP)
-            }
-        }).catch((e) => console.log(e));
-      };
+            .then((res) => res.json())
+            .then(res => {
+                if (res != undefined && res.userXP != undefined) {
+                    setXP(res.userXP)
+                }
+            }).catch((e) => console.log(e));
+    };
     useEffect(() => {
         getUser();
     }, []);
@@ -114,12 +114,12 @@ const HomeScreen = () => {
     const playGenre = (genreID, genreName) => {
         const url = `${apiStart}/Songs/GetGenreSongsWithUserData/GenreID/${genreID}/UserID/${user?.id}`;
         fetch(url, { method: "GET", headers: new Headers({ 'Content-Type': 'application/json; charset=UTF-8' }) })
-        .then(res => res.json())
-        .then(res => {
-            for (i of res)
-                i.genreName = genreName;
-            updateQueueAndPlay(res[0].songID, res, 0);
-        }).catch((err) => console.log(err));
+            .then(res => res.json())
+            .then(res => {
+                for (i of res)
+                    i.genreName = genreName;
+                updateQueueAndPlay(res[0].songID, res, 0);
+            }).catch((err) => console.log(err));
     };
     const getUserSongHistory = () => {
         const api = `${apiStart}/Users/GetUserSongHistory/UserID/${user?.id}`;
@@ -137,7 +137,7 @@ const HomeScreen = () => {
             <ScrollView style={{ marginTop: 50 }}>
                 <View style={{ padding: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        {(user !== undefined && (user?.image == null || user?.image == "")) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user?.image}` }} style={{  width: 65,height: 65,borderRadius: 50 }}/>}
+                        {(user !== undefined && (user?.image == null || user?.image == "")) ? <ProfilePicture name={user?.name} /> : <Image source={{ uri: `data:image/jpeg;base64,${user?.image}` }} style={{ width: 65, height: 65, borderRadius: 50 }} />}
                         <Text style={{ marginLeft: 10, fontSize: 20, fontWeight: 'bold', color: 'white' }}>{message}</Text>
                     </View>
                 </View>
@@ -165,29 +165,39 @@ const HomeScreen = () => {
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Pressable onPress={() => navigation.navigate('Chat')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
                         <LinearGradient colors={['gray', '#FFFFFF']}>
-                            <Pressable onPress={()=>navigation.navigate('Chat')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
+                            <Pressable onPress={() => navigation.navigate('Chat')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
                                 <Entypo name='chat' size={24} color='white' />
                             </Pressable>
                         </LinearGradient>
                         <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 13 }}>Join Chat</Text>
                     </Pressable>
-                    <Pressable onPress={() => navigation.navigate('Leaderboard')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
-                        <LinearGradient colors={['#dc7576', '#FFFFFF']}>
-                            <Pressable onPress={() => navigation.navigate('Leaderboard')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
-                                <MaterialIcons name='leaderboard' size={24} color='white' />
+                    <Pressable onPress={() => navigation.navigate('ChatGPT')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
+                        <LinearGradient colors={['#53A6A6', '#FFFFFF']}>
+                            <Pressable onPress={() => navigation.navigate('ChatGPT')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
+                                <FontAwesome5 name='brain' size={24} color='white' />
                             </Pressable>
                         </LinearGradient>
                         <View>
-                            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 13 }}>Leaderboard</Text>
+                            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 13 }}>Gemini AI</Text>
                         </View>
                     </Pressable>
                 </View>
+                <Pressable onPress={() => navigation.navigate('ListenTogether')} style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginHorizontal: 10, marginVertical: 8, backgroundColor: '#202020', borderRadius: 4, elevation: 3 }}>
+                    <LinearGradient colors={['orange', '#FFFFFF']}>
+                        <Pressable onPress={() => navigation.navigate('ListenTogether')} style={{ width: 55, height: 55, justifyContent: 'center', alignItems: 'center' }}>
+                            <FontAwesome5 name='user-friends' size={24} color='white' />
+                        </Pressable>
+                    </LinearGradient>
+                    <View>
+                        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 13 }}>Listen With Friends</Text>
+                    </View>
+                </Pressable>
                 <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>Recommended For You</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>{recommended?.map((item, index) => (
                     <SongCard item={item} key={index} />
                 ))}</ScrollView>
                 {recentlyPlayed?.length > 0 &&
-                <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>Recently Played</Text>
+                    <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>Recently Played</Text>
                 }
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>{recentlyPlayed?.slice(0, 10)?.map((item, index) => (
                     <SongCard item={item} key={index} />
@@ -201,27 +211,27 @@ const HomeScreen = () => {
                     Live Radio
                 </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(0)}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playRadioStation(0)}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://i.imgur.com/IdLpgkF_d.webp?maxwidth=760&fidelity=grand' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Kids</Text>
                     </Pressable>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(1)}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playRadioStation(1)}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://freerangestock.com/sample/64357/pop-music-means-sound-track-and-melodies.jpg' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>German Pop</Text>
                     </Pressable>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(2)}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playRadioStation(2)}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://static.mytuner.mobi/media/tvos_radios/q8ne5lhjxbcf.jpg' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>German Music</Text>
                     </Pressable>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(3)}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playRadioStation(3)}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://static.mytuner.mobi/media/tvos_radios/mmvGSBqcQB.png' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Dance</Text>
                     </Pressable>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(4)}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playRadioStation(4)}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://www.radio.net/images/broadcasts/81/9d/104930/2/c300.png' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Kids</Text>
                     </Pressable>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playRadioStation(5)}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playRadioStation(5)}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://i.imgur.com/WWn5XN8_d.webp?maxwidth=760&fidelity=grand' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Pop</Text>
                     </Pressable>
@@ -230,35 +240,35 @@ const HomeScreen = () => {
                     By Genre
                 </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(10, 'Rock')}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playGenre(10, 'Rock')}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img4.jpg?raw=true' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Rock</Text>
                     </Pressable>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(1, 'Pop')}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playGenre(1, 'Pop')}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img5.jpg?raw=true' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Pop</Text>
                     </Pressable>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(2, 'Christmas')}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playGenre(2, 'Christmas')}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img1.jpg?raw=true' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Christmas</Text>
                     </Pressable>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(3, 'Hip Hop')}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playGenre(3, 'Hip Hop')}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img3.jpg?raw=true' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Hip Hop</Text>
                     </Pressable>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(5, 'Ballad')}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playGenre(5, 'Ballad')}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img2.jpg?raw=true' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Ballad</Text>
                     </Pressable>
-                    <Pressable style={{ margin: 10 }} onPress={()=>playGenre(11, 'Funk')}>
+                    <Pressable style={{ margin: 10 }} onPress={() => playGenre(11, 'Funk')}>
                         <Image style={{ width: 130, height: 130, borderRadius: 5 }} source={{ uri: 'https://github.com/cgroup22/Songs/blob/8958aca3109473e8bedc001d5460265ce38d2750/Pages/images/genrs/img6.jpg?raw=true' }} />
                         <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '500', color: 'white', marginTop: 10 }}>Funk</Text>
                     </Pressable>
                 </ScrollView>
                 {playlists.length > 0 &&
-                <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>
-                    Your Playlists
-                </Text>}
+                    <Text style={{ color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 10, marginTop: 10 }}>
+                        Your Playlists
+                    </Text>}
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     {playlists.map((item, index) => (
                         <Pressable style={{ margin: 10 }} onPress={() => navigation.navigate('Playlist', {
@@ -273,7 +283,7 @@ const HomeScreen = () => {
                 <View style={{ height: 100 }}></View>
             </ScrollView>
             <SongModal gapValue={85} />
-            <View style={{height:audioPlayer.currentTrack == null ? 0 : 60}}></View>
+            <View style={{ height: audioPlayer.currentTrack == null ? 0 : 60 }}></View>
         </LinearGradient>
     )
 }

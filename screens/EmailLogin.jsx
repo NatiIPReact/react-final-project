@@ -123,7 +123,7 @@ const EmailLogin = () => {
                                 <Text style={{ color: 'white', fontSize: 18 }}>Forgot your password?</Text>
                             </TouchableOpacity>
                         </View>
-                        <Text style={{ color: 'red', fontSize: 23, marginTop: 5, display: errorMessage ? 'flex' : 'none' }}>{errorMessage}</Text>
+                        <Text style={{ color: 'red', fontSize: 23, marginTop: 15, display: errorMessage ? 'flex' : 'none' }}>{errorMessage}</Text>
                     </View>
                 </View>
             </SafeAreaView>

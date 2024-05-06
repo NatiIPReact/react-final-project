@@ -168,7 +168,7 @@ const MyLibrary = () => {
                   <TextInput
                     style={{
                       height: 40,
-                      borderColor: { modalBorderColor },
+                      borderColor: modalBorderColor,
                       borderWidth: (modalBorderColor === "red") ? 3 : 1,
                       marginBottom: 10,
                       paddingHorizontal: 10,

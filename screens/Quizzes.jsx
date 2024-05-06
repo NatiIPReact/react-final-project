@@ -45,6 +45,11 @@ const Quizzes = () => {
                         <Text style={styles.buttonText}>Play Quiz</Text>
                     </TouchableOpacity>
                 </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20, justifyContent: 'center', }}>
+                    <TouchableOpacity style={styles.playButton} onPress={()=>navigation.navigate('Leaderboard')}>
+                        <Text style={styles.buttonText}>Leaderboard</Text>
+                    </TouchableOpacity>
+                </View>
                 <Text style={{color:'white',textAlign:'center',fontSize:20}}>Level {Math.floor(xp / 100) + 1}</Text>
                 <Text style={{color:'white',textAlign:'center',fontSize:20}}>You need <Text style={{color:'red'}}>{100 - (xp % 100)} XP</Text> to reach level {Math.floor(xp / 100) + 2}</Text>
                 <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold', textAlign: 'center' }}>Quiz History</Text>

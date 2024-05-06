@@ -33,6 +33,9 @@ import PhoneLogin from "./screens/PhoneLogin";
 import Shazam from "./screens/Shazam";
 import SongHistory from "./screens/SongHistory";
 import ForgotPassword from "./screens/ForgotPassword";
+import ChatGPT from "./screens/ChatGPT";
+import ListenTogether from "./screens/ListenTogether";
+import Lobby from "./screens/Lobby";
 
 const Tab = createBottomTabNavigator();
 
@@ -107,6 +110,9 @@ function Navigation() {
                 <Stack.Screen name="Shazam" component={Shazam} options={{headerShown:false}}/>
                 <Stack.Screen name="SongHistory" component={SongHistory} options={{headerShown:false}}/>
                 <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{headerShown:false}}/>
+                <Stack.Screen name="ChatGPT" component={ChatGPT} options={{headerShown:false}}/>
+                <Stack.Screen name="ListenTogether" component={ListenTogether} options={{headerShown:false}}/>
+                <Stack.Screen name="Lobby" component={Lobby} options={{headerShown:false,gestureEnabled: false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )
