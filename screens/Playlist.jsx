@@ -84,7 +84,6 @@ const Playlist = () => {
     fetchPlaylistSongs();
   }, []);
   const playSong = (songID = 0, ind = -1) => {
-    console.log(tracks[0])
     if (tracks.length === 0) {
       return;
     }

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Pressable, Image } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Pressable, Image, AppState } from 'react-native'
 import React, { useContext } from 'react'
 import { useRoute } from '@react-navigation/native';
 import { useEffect, useState } from 'react'
@@ -53,7 +53,12 @@ const Lobby = () => {
 
         onValue(lobbiesRef, handleNewLobby);
 
+        const subscription = AppState.addEventListener('change', nextAppState => {
+            leave();
+        });
+
         return () => {
+            subscription.remove();
             // Cleanup: Remove the listener when the component unmounts
             off(lobbiesRef, 'value', handleNewLobby);
         };
@@ -71,7 +76,6 @@ const Lobby = () => {
     }, [lobbyData])
     useEffect(() => {
         const unsubscribe = navigation.addListener('blur', () => {
-            console.log('d')
             leave()
         });
         return unsubscribe
@@ -110,6 +114,10 @@ const Lobby = () => {
             }).catch(e => console.log(e));
     };
     const leave = () => {
+        if (lobbyData == null) {
+            navigation.goBack()
+            return
+        }
         const lobbyRef = ref(database, `lobbies/${lobbyData?.firebaseID}`);
         if (lobbyData.usersInLobby.length <= 1) {
             // Remove the lobby from the database
@@ -119,6 +127,7 @@ const Lobby = () => {
                 })
                 .catch((error) => {
                     console.error("Error removing lobby: ", error);
+                    navigation.goBack()
                 });
         } else {
             let tmp = [...lobbyData.usersInLobby]
@@ -136,7 +145,7 @@ const Lobby = () => {
             set(lobbyRef, newLobbyData)
                 .then(res => {
                     navigation.goBack()
-                }).catch(res => console.log('error', res))
+                }).catch(res => {console.log('error', res); navigation.goBack()})
         }
     };
     const handleInputChange = (text) => {
